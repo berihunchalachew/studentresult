@@ -155,211 +155,133 @@
   <div class="footer">&copy; 2026 Dire Dawa University - Student Result PWA</div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyTLuUzF9LG1EUer3znlohVhIpHlMVVlja5hJHu01T2qBBgBRJWxL5d03mb6R3GoAXp/exec";
+<script>
+const WEB_APP_URL = "YOUR_WEB_APP_URL_HERE"; // Replace with your deployed Apps Script URL
 
-    // Populate sheets from Web App
-   
+window.onload = async () => {
+  await populateSheets();
+  document.body.style.visibility = 'visible';
+  document.getElementById('loader').style.display = 'none';
+};
+
 async function populateSheets() {
-  const select = document.getElementById("sheet");
-  select.innerHTML = '<option value="">-- Select --</option>';
-
-  try {
-    const res = await fetch(`${WEB_APP_URL}?getSheets=true`);
-    const data = await res.json();
-
-    if (!data.sheets) throw "No sheets";
-
-    data.sheets.forEach(s => {
-      const opt = document.createElement("option");
-      opt.value = s;
-      opt.text = s;
-      select.appendChild(opt);
-    });
-
-  } catch (err) {
-    alert("❌ Cannot load sheets. Check deployment.");
-    console.error(err);
-  }
-}
-    // Login / Change Password / Dashboard
-   async function login() {
-  const id = studentId.value.trim();
-  const pass = password.value.trim();
-  const sheet = document.getElementById("sheet").value;
-
-  if (!id || !pass || !sheet) {
-    alert("Fill all fields");
-    return;
-  }
-
   try {
     const res = await fetch(WEB_APP_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, password: pass, sheet })
-    });
-
-    const data = await res.json();
-
-    if (data.error) {
-      alert(data.error);
-      return;
-    }
-
-    localStorage.setItem("student", JSON.stringify(data.student));
-    localStorage.setItem("sheet", sheet);
-
-    showDashboard();
-
-  } catch (err) {
-    alert("Network error");
-  }
-}
-
-    async function changePassword() {
-  const newPass = newPassword.value;
-  const confirm = confirmPassword.value;
-
-  if (newPass !== confirm) {
-    alert("Passwords do not match");
-    return;
-  }
-
-  const student = JSON.parse(localStorage.getItem("student"));
-  const sheet = localStorage.getItem("sheet");
-
-  try {
-    const res = await fetch(WEB_APP_URL, {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({
-        id: student.StudentID,
-        password: student.Password,
-        sheet,
-        newPassword: newPass
-      })
-    });
-
-    const data = await res.json();
-
-    if (data.error) {
-      alert(data.error);
-      return;
-    }
-
-    alert("Password updated!");
-    showDashboard();
-
-  } catch (err) {
-    alert("Update failed");
-  }
-}
-
-    function showDashboard() {
-      const student = JSON.parse(localStorage.getItem("student"));
-      if (!student) return;
-      document.getElementById("welcomeMsg").innerText = `Welcome, ${student.FirstName||""} ${student.FatherName||""}`;
-      document.getElementById("loginPage").classList.add("hidden");
-      document.getElementById("changePasswordPage").classList.add("hidden");
-      document.getElementById("dashboardPage").classList.remove("hidden");
-    }
-
-    function loadResultTable() {
-      const student = JSON.parse(localStorage.getItem("student"));
-      if (!student) return;
-
-      const tbody = document.querySelector("#resultTable tbody");
-      const thead = document.querySelector("#resultTable thead");
-      tbody.innerHTML = ""; thead.innerHTML = "";
-
-      const excludedFields = ["Password"];
-      const headers = Object.keys(student).filter(h => !excludedFields.includes(h));
-
-      let headerRow = "<tr>";
-      headers.forEach(h => headerRow += `<th>${h}</th>`);
-      headerRow += "</tr>";
-      thead.innerHTML = headerRow;
-
-      let row = "<tr>";
-      headers.forEach(h => row += `<td>${student[h]}</td>`);
-      row += "</tr>";
-      tbody.innerHTML = row;
-    }
-
-    function logout() {
-      localStorage.clear();
-      document.getElementById("studentId").value="";
-      document.getElementById("password").value="";
-      document.getElementById("sheet").value="";
-      document.getElementById("loginPage").classList.remove("hidden");
-      document.getElementById("changePasswordPage").classList.add("hidden");
-      document.getElementById("dashboardPage").classList.add("hidden");
-    }
-
-    async function refreshStudentData() {
-      const student = JSON.parse(localStorage.getItem("student"));
-      const sheet = localStorage.getItem("sheet");
-      if (!student || !sheet) return;
-
-      try {
-        const res = await fetch(WEB_APP_URL, {
-          method:"POST",
-          headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({ id:student.StudentID, password:student.Password, sheet })
-        });
-        const data = await res.json();
-        if(!data.error){ localStorage.setItem("student", JSON.stringify(data.student)); }
-      } catch(err){ console.error("Refresh failed", err); }
-    }
-
-    window.onload = async function() {
-      await populateSheets();
-
-      const student = JSON.parse(localStorage.getItem("student"));
-      const firstLogin = localStorage.getItem("firstLogin") === "true";
-
-      if (student) {
-        if(firstLogin){ document.getElementById("changePasswordPage").classList.remove("hidden"); }
-        else { showDashboard(); }
-      } else { document.getElementById("loginPage").classList.remove("hidden"); }
-
-      const tabContainer = document.getElementById("dashboardTabs");
-      if(tabContainer){
-        tabContainer.addEventListener('shown.bs.tab', e=>{
-          if(e.target.getAttribute("data-bs-target")==="#viewResultTab"){ loadResultTable(); }
-        });
-      }
-
-      document.getElementById("loader").style.display="none";
-      document.body.style.visibility="visible";
-
-      setInterval(async ()=>{
-        if(!document.hidden){
-          await refreshStudentData();
-          const activeTab = document.querySelector(".nav-link.active");
-          if(activeTab && activeTab.getAttribute("data-bs-target")==="#viewResultTab"){ loadResultTable(); }
-        }
-      },10000);
-    };
-
-    if('serviceWorker' in navigator){ navigator.serviceWorker.register('./service-worker.js'); }
- </script>
-  
-  <script>
-(async () => {
-  try {
-    const res = await fetch("https://script.google.com/macros/s/AKfycbxVzCovZ6sNQNd2DfCN-uws7eIRObB5kh4DZhorUo59v2-aeLiI29YMvkO-Lhtpyglr/exec", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ getSheets: true })
     });
     const data = await res.json();
-    console.log("Sheets from Web App:", data);
-  } catch (err) {
-    console.error("Fetch failed:", err);
+    const select = document.getElementById('sheet');
+    if (data.sheets) {
+      select.innerHTML = '<option value="">-- Select --</option>';
+      data.sheets.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s;
+        opt.textContent = s;
+        select.appendChild(opt);
+      });
+    }
+  } catch(err) {
+    console.error("Failed to fetch sheets:", err);
+    alert("Unable to load sheet list. Check Web App URL and network.");
   }
-})();
+}
+
+async function login() {
+  const studentId = document.getElementById('studentId').value.trim();
+  const password = document.getElementById('password').value.trim();
+  const sheet = document.getElementById('sheet').value;
+
+  if (!studentId || !password || !sheet) {
+    document.getElementById('loginMsg').textContent = "All fields are required.";
+    return;
+  }
+
+  try {
+    const res = await fetch(WEB_APP_URL, {
+      method: "POST",
+      body: JSON.stringify({ id: studentId, password, sheet })
+    });
+    const data = await res.json();
+    if (data.error) {
+      document.getElementById('loginMsg').textContent = data.error;
+      return;
+    }
+    sessionStorage.setItem('student', JSON.stringify(data.student));
+    if (data.firstLogin) {
+      document.getElementById('loginPage').classList.add('hidden');
+      document.getElementById('changePasswordPage').classList.remove('hidden');
+    } else {
+      showDashboard(data.student);
+    }
+  } catch(err) {
+    document.getElementById('loginMsg').textContent = "Network error.";
+  }
+}
+
+function showDashboard(student) {
+  document.getElementById('loginPage').classList.add('hidden');
+  document.getElementById('changePasswordPage').classList.add('hidden');
+  document.getElementById('dashboardPage').classList.remove('hidden');
+  document.getElementById('welcomeMsg').textContent = `Welcome, ${student.FirstName || student.Name || student.StudentID}`;
+  loadResults(student);
+}
+
+function loadResults(student) {
+  const table = document.getElementById('resultTable');
+  const headers = Object.keys(student).filter(k => k.toLowerCase() !== 'studentid');
+  const thead = table.querySelector('thead'); thead.innerHTML = '';
+  const trHead = document.createElement('tr');
+  headers.forEach(h => { const th = document.createElement('th'); th.textContent = h; trHead.appendChild(th); });
+  thead.appendChild(trHead);
+
+  const tbody = table.querySelector('tbody'); tbody.innerHTML = '';
+  const trBody = document.createElement('tr');
+  headers.forEach(h => { const td = document.createElement('td'); td.textContent = student[h]; trBody.appendChild(td); });
+  tbody.appendChild(trBody);
+}
+
+async function changePassword() {
+  const newPassword = document.getElementById('newPassword').value.trim();
+  const confirmPassword = document.getElementById('confirmPassword').value.trim();
+  const student = JSON.parse(sessionStorage.getItem('student'));
+
+  if (!newPassword || !confirmPassword) {
+    document.getElementById('passwordMsg').textContent = "All fields required.";
+    return;
+  }
+  if (newPassword !== confirmPassword) {
+    document.getElementById('passwordMsg').textContent = "Passwords do not match.";
+    return;
+  }
+
+  try {
+    const res = await fetch(WEB_APP_URL, {
+      method: "POST",
+      body: JSON.stringify({ 
+        id: student.StudentID, 
+        password: "123456",
+        newPassword: newPassword,
+        sheet: document.getElementById('sheet').value
+      })
+    });
+    const data = await res.json();
+    if (data.error) {
+      document.getElementById('passwordMsg').textContent = data.error;
+      return;
+    }
+    sessionStorage.setItem('student', JSON.stringify(data.student));
+    showDashboard(data.student);
+  } catch(err) {
+    document.getElementById('passwordMsg').textContent = "Network error.";
+  }
+}
+
+function logout() {
+  sessionStorage.clear();
+  document.getElementById('dashboardPage').classList.add('hidden');
+  document.getElementById('loginPage').classList.remove('hidden');
+}
 </script>
 </body>
 </html>
