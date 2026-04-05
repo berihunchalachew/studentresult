@@ -1,74 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Result PWA</title>
-  <link rel="manifest" href="manifest.json">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    /* Hide sections */
-    .hidden { display: none !important; }
-
-    /* Login container */
-    .login-container {
-      max-width: 400px;
-      margin: 100px auto;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-      background-color: #fff;
-    }
-    .login-container img { display:block; margin:0 auto 20px; width:80px; height:80px; }
-
-    /* Navbar logo */
-    .navbar-brand img { height:40px; width:auto; margin-right:10px; }
-
-    /* Buttons */
-    .btn-gradient {
-      background: linear-gradient(90deg, #4b6cb7, #182848);
-      color:#fff; border:none; transition:.3s;
-    }
-    .btn-gradient:hover { opacity:.9; }
-
-    .navbar-custom {
-      background: linear-gradient(90deg, #4b6cb7, #182848);
-    }
-    .navbar-custom .nav-link { color:#fff !important; margin-right:10px; }
-    .navbar-custom .nav-link.active { background-color: rgba(255,255,255,0.2); border-radius:5px; }
-
-    /* Footer */
-    .footer { text-align:center; margin:30px 0; font-size:.9rem; color:#555; }
-
-    @media(max-width:576px) { .login-container { margin:50px 20px; padding:20px; } }
-    .navbar-toggler { border-color: rgba(255,255,255,0.5); }
-    .navbar-toggler-icon { filter: invert(1); }
-
-    html,body { height:100%; margin:0; display:flex; flex-direction:column; }
-    #loginPage, #changePasswordPage, #dashboardPage { flex:1; }
-    .footer { margin-top:auto; padding:15px 0; background-color:#f8f9fa; width:100%; }
-
-    /* Loader */
-    #loader {
-      position:fixed; top:0; left:0; width:100%; height:100%;
-      background:white; display:flex; justify-content:center; align-items:center; z-index:9999;
-    }
-    .spinner {
-      width:50px; height:50px; border:5px solid #ddd;
-      border-top:5px solid #4b6cb7; border-radius:50%;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin { 100% { transform: rotate(360deg); } }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Result PWA</title>
+<link rel="manifest" href="manifest.json">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  body, html {height:100%; margin:0; display:flex; flex-direction:column; visibility:hidden;}
+  .hidden {display:none !important;}
+  #loader {position:fixed; top:0; left:0;width:100%; height:100%; background:white; display:flex; justify-content:center; align-items:center; z-index:9999;}
+  .spinner {width:50px;height:50px; border:5px solid #ddd; border-top:5px solid #4b6cb7; border-radius:50%; animation:spin 1s linear infinite;}
+  @keyframes spin {100%{transform:rotate(360deg);}}
+  .login-container {max-width:400px;margin:100px auto; padding:30px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); background-color:#fff;}
+  .btn-gradient {background: linear-gradient(90deg, #4b6cb7, #182848); color:#fff; border:none;}
+  .navbar-custom {background: linear-gradient(90deg, #4b6cb7, #182848);}
+  .navbar-custom .nav-link {color:#fff !important;}
+  .footer {text-align:center;margin:30px 0;font-size:.9rem;color:#555;}
+</style>
 </head>
 <body>
 
 <div id="loader"><div class="spinner"></div></div>
 
 <!-- Login Page -->
-<div id="loginPage" class="flex-grow-1">
+<div id="loginPage" class="hidden flex-grow-1">
   <div class="login-container">
-    <img src="./login.png" alt="Login Icon">
+    <img src="./login.png" alt="Login Icon" width="80" height="80">
     <h3 class="text-center mb-4">Student Login</h3>
     <div class="mb-3">
       <label>Student ID</label>
@@ -80,9 +38,7 @@
     </div>
     <div class="mb-3">
       <label>Select course code / section</label>
-      <select id="sheet" class="form-select">
-        <option value="">-- Select --</option>
-      </select>
+      <select id="sheet" class="form-select"><option value="">-- Select --</option></select>
     </div>
     <div id="loginMsg" class="text-danger mb-3"></div>
     <button onclick="login()" class="btn btn-gradient w-100">Login</button>
@@ -94,14 +50,8 @@
   <h2 class="text-center mb-4">Change Password</h2>
   <div class="row justify-content-center">
     <div class="col-12 col-md-6">
-      <div class="mb-3">
-        <label>New Password</label>
-        <input type="password" id="newPassword" class="form-control">
-      </div>
-      <div class="mb-3">
-        <label>Confirm Password</label>
-        <input type="password" id="confirmPassword" class="form-control">
-      </div>
+      <div class="mb-3"><label>New Password</label><input type="password" id="newPassword" class="form-control"></div>
+      <div class="mb-3"><label>Confirm Password</label><input type="password" id="confirmPassword" class="form-control"></div>
       <div id="passwordMsg" class="text-danger mb-3"></div>
       <button onclick="changePassword()" class="btn btn-gradient w-100">Update Password</button>
     </div>
@@ -112,13 +62,8 @@
 <div id="dashboardPage" class="hidden flex-grow-1">
   <nav class="navbar navbar-expand-lg navbar-custom mb-4">
     <div class="container-fluid">
-      <a class="navbar-brand d-flex align-items-center" href="#">
-        <img src="./diredawa-university.png" alt="DDU Logo">
-        <span>Student Portal</span>
-      </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+      <a class="navbar-brand d-flex align-items-center" href="#"><img src="./diredawa-university.png" alt="DDU Logo" height="40" class="me-2">Student Portal</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto" id="dashboardTabs">
           <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#homeTab">Home</button></li>
@@ -130,18 +75,12 @@
       </div>
     </div>
   </nav>
-
   <div class="container">
     <h4 id="welcomeMsg" class="mb-4"></h4>
     <div class="tab-content">
       <div class="tab-pane fade show active" id="homeTab">Welcome to the Student Result Portal.</div>
       <div class="tab-pane fade" id="viewResultTab">
-        <div class="table-responsive">
-          <table class="table table-bordered table-striped table-sm" id="resultTable">
-            <thead></thead>
-            <tbody></tbody>
-          </table>
-        </div>
+        <div class="table-responsive"><table class="table table-bordered table-striped table-sm" id="resultTable"><thead></thead><tbody></tbody></table></div>
       </div>
       <div class="tab-pane fade" id="aboutTab">This is the Student Result Portal for multiple courses.</div>
       <div class="tab-pane fade" id="contactTab">Contact: berihun.chalachew@ddu.edu.et</div>
@@ -153,136 +92,70 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx_D_ebBp--sGQ4dleMQMdZRLg4aLpIxZ5OKu49K7c_SFSYQris0Y3dPZkIaQvVHnJq/exec"; // <-- replace
+const WEB_APP_URL = "YOUR_DEPLOYED_SCRIPT_URL"; // <-- put Apps Script URL here
 
 window.onload = async () => {
-  try {
-    await populateSheets();
-  } catch(e) {
-    console.error(e);
-  }
+  await populateSheets();
   document.body.style.visibility = 'visible';
   document.getElementById('loader').style.display = 'none';
 };
 
 async function populateSheets() {
   try {
-    const res = await fetch(WEB_APP_URL, {
-      method: "POST",
-      body: JSON.stringify({ getSheets: true })
-    });
+    const res = await fetch(WEB_APP_URL, {method:"POST", body:JSON.stringify({getSheets:true})});
     const data = await res.json();
     const select = document.getElementById('sheet');
     select.innerHTML = '<option value="">-- Select --</option>';
-    if (data.sheets) {
-      data.sheets.forEach(s => {
-        const opt = document.createElement('option');
-        opt.value = s; opt.textContent = s;
-        select.appendChild(opt);
-      });
-    }
-  } catch(err) {
-    console.error("Failed to fetch sheets:", err);
-    alert("Unable to load sheet list. Check Web App URL and network.");
-  }
+    data.sheets.forEach(s => { const opt=document.createElement('option'); opt.value=s; opt.textContent=s; select.appendChild(opt); });
+  } catch(err) { alert("Failed to load sheets. Check Web App URL."); }
 }
 
 async function login() {
   const studentId = document.getElementById('studentId').value.trim();
   const password = document.getElementById('password').value.trim();
   const sheet = document.getElementById('sheet').value;
-
-  if (!studentId || !password || !sheet) {
-    document.getElementById('loginMsg').textContent = "All fields are required.";
-    return;
-  }
-
+  if(!studentId||!password||!sheet){document.getElementById('loginMsg').textContent="All fields required"; return;}
   try {
-    const res = await fetch(WEB_APP_URL, {
-      method: "POST",
-      body: JSON.stringify({ id: studentId, password, sheet })
-    });
+    const res = await fetch(WEB_APP_URL, {method:"POST", body:JSON.stringify({id:studentId,password,sheet})});
     const data = await res.json();
-    if (data.error) {
-      document.getElementById('loginMsg').textContent = data.error;
-      return;
-    }
-
-    sessionStorage.setItem('student', JSON.stringify(data.student));
-    if (data.firstLogin) {
-      document.getElementById('loginPage').classList.add('hidden');
-      document.getElementById('changePasswordPage').classList.remove('hidden');
-    } else {
-      showDashboard(data.student);
-    }
-  } catch(err) {
-    document.getElementById('loginMsg').textContent = "Network error.";
-  }
+    if(data.error){document.getElementById('loginMsg').textContent=data.error; return;}
+    sessionStorage.setItem('student',JSON.stringify(data.student));
+    if(data.firstLogin){document.getElementById('loginPage').classList.add('hidden');document.getElementById('changePasswordPage').classList.remove('hidden');}
+    else showDashboard(data.student);
+  } catch(err){document.getElementById('loginMsg').textContent="Network error";}
 }
 
-function showDashboard(student) {
+function showDashboard(student){
   document.getElementById('loginPage').classList.add('hidden');
   document.getElementById('changePasswordPage').classList.add('hidden');
   document.getElementById('dashboardPage').classList.remove('hidden');
-  document.getElementById('welcomeMsg').textContent = `Welcome, ${student.FirstName || student.Name || student.StudentID}`;
+  document.getElementById('welcomeMsg').textContent=`Welcome, ${student.FirstName||student.Name||student.StudentID}`;
   loadResults(student);
 }
 
-function loadResults(student) {
-  const table = document.getElementById('resultTable');
-  const headers = Object.keys(student).filter(k => k.toLowerCase() !== 'studentid');
-  const thead = table.querySelector('thead'); thead.innerHTML = '';
-  const trHead = document.createElement('tr');
-  headers.forEach(h => { const th = document.createElement('th'); th.textContent = h; trHead.appendChild(th); });
-  thead.appendChild(trHead);
-
-  const tbody = table.querySelector('tbody'); tbody.innerHTML = '';
-  const trBody = document.createElement('tr');
-  headers.forEach(h => { const td = document.createElement('td'); td.textContent = student[h]; trBody.appendChild(td); });
-  tbody.appendChild(trBody);
+function loadResults(student){
+  const table=document.getElementById('resultTable');
+  const headers=Object.keys(student).filter(k=>k.toLowerCase()!=='studentid');
+  const thead=table.querySelector('thead');thead.innerHTML='';const trHead=document.createElement('tr');headers.forEach(h=>{const th=document.createElement('th');th.textContent=h;trHead.appendChild(th);});thead.appendChild(trHead);
+  const tbody=table.querySelector('tbody');tbody.innerHTML='';const trBody=document.createElement('tr');headers.forEach(h=>{const td=document.createElement('td');td.textContent=student[h];trBody.appendChild(td);});tbody.appendChild(trBody);
 }
 
-async function changePassword() {
-  const newPassword = document.getElementById('newPassword').value.trim();
-  const confirmPassword = document.getElementById('confirmPassword').value.trim();
-  const student = JSON.parse(sessionStorage.getItem('student'));
-
-  if (!newPassword || !confirmPassword) {
-    document.getElementById('passwordMsg').textContent = "All fields required.";
-    return;
-  }
-  if (newPassword !== confirmPassword) {
-    document.getElementById('passwordMsg').textContent = "Passwords do not match.";
-    return;
-  }
-
+async function changePassword(){
+  const newPassword=document.getElementById('newPassword').value.trim();
+  const confirmPassword=document.getElementById('confirmPassword').value.trim();
+  const student=JSON.parse(sessionStorage.getItem('student'));
+  if(!newPassword||!confirmPassword){document.getElementById('passwordMsg').textContent="All fields required"; return;}
+  if(newPassword!==confirmPassword){document.getElementById('passwordMsg').textContent="Passwords do not match"; return;}
   try {
-    const res = await fetch(WEB_APP_URL, {
-      method: "POST",
-      body: JSON.stringify({ 
-        id: student.StudentID, 
-        password: "123456",
-        newPassword: newPassword,
-        sheet: document.getElementById('sheet').value
-      })
-    });
-    const data = await res.json();
-    if (data.error) {
-      document.getElementById('passwordMsg').textContent = data.error;
-      return;
-    }
-    sessionStorage.setItem('student', JSON.stringify(data.student));
+    const res=await fetch(WEB_APP_URL,{method:"POST",body:JSON.stringify({id:student.StudentID,password:"123456",newPassword,newPassword,sheet:document.getElementById('sheet').value})});
+    const data=await res.json();
+    if(data.error){document.getElementById('passwordMsg').textContent=data.error;return;}
+    sessionStorage.setItem('student',JSON.stringify(data.student));
     showDashboard(data.student);
-  } catch(err) {
-    document.getElementById('passwordMsg').textContent = "Network error.";
-  }
+  } catch(err){document.getElementById('passwordMsg').textContent="Network error";}
 }
 
-function logout() {
-  sessionStorage.clear();
-  document.getElementById('dashboardPage').classList.add('hidden');
-  document.getElementById('loginPage').classList.remove('hidden');
-}
+function logout(){sessionStorage.clear();document.getElementById('dashboardPage').classList.add('hidden');document.getElementById('loginPage').classList.remove('hidden');}
 </script>
 </body>
 </html>
