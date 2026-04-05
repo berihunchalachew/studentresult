@@ -159,46 +159,29 @@
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxVzCovZ6sNQNd2DfCN-uws7eIRObB5kh4DZhorUo59v2-aeLiI29YMvkO-Lhtpyglr/exec";
 
     // Populate sheets from Web App
-    async function populateSheets() {
+   
+async function populateSheets() {
   const select = document.getElementById("sheet");
   select.innerHTML = '<option value="">-- Select --</option>';
 
   try {
-    const res = await fetch(WEB_APP_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ getSheets: true })
-    });
-
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
+    const res = await fetch(`${WEB_APP_URL}?getSheets=true`);
     const data = await res.json();
 
-    if (data.error) {
-      console.error("Failed to fetch sheets:", data.error);
-      alert("Unable to load sheet list. Check Web App URL.");
-      return;
-    }
+    if (!data.sheets) throw "No sheets";
 
-    if (data.sheets && Array.isArray(data.sheets) && data.sheets.length > 0) {
-      // Populate dropdown with actual sheets
-      data.sheets.forEach(sheet => {
-        const option = document.createElement("option");
-        option.value = sheet;
-        option.text = sheet;
-        select.appendChild(option);
-      });
-    } else {
-      console.warn("No sheets found in the spreadsheet.");
-      alert("No sheets found. Please check your spreadsheet.");
-    }
+    data.sheets.forEach(s => {
+      const opt = document.createElement("option");
+      opt.value = s;
+      opt.text = s;
+      select.appendChild(opt);
+    });
 
   } catch (err) {
-    console.error("Fetch failed:", err);
-    alert("Failed to fetch sheets. Check network and Web App URL.");
+    alert("❌ Cannot load sheets. Check deployment.");
+    console.error(err);
   }
 }
-
     // Login / Change Password / Dashboard
     async function login() {
       const id = document.getElementById("studentId").value.trim();
