@@ -156,7 +156,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxVzCovZ6sNQNd2DfCN-uws7eIRObB5kh4DZhorUo59v2-aeLiI29YMvkO-Lhtpyglr/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyTLuUzF9LG1EUer3znlohVhIpHlMVVlja5hJHu01T2qBBgBRJWxL5d03mb6R3GoAXp/exec";
 
     // Populate sheets from Web App
    
@@ -183,62 +183,78 @@ async function populateSheets() {
   }
 }
     // Login / Change Password / Dashboard
-    async function login() {
-      const id = document.getElementById("studentId").value.trim();
-      const password = document.getElementById("password").value.trim();
-      const sheet = document.getElementById("sheet").value;
-      const msg = document.getElementById("loginMsg");
-      msg.innerText = "";
-      if (!id || !password || !sheet) { msg.innerText = "Fill all fields!"; return; }
+   async function login() {
+  const id = studentId.value.trim();
+  const pass = password.value.trim();
+  const sheet = document.getElementById("sheet").value;
 
-      try {
-        const res = await fetch(WEB_APP_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id, password, sheet })
-        });
-        const data = await res.json();
-        if (data.error) { msg.innerText = data.error; return; }
+  if (!id || !pass || !sheet) {
+    alert("Fill all fields");
+    return;
+  }
 
-        const firstLogin = data.firstLogin===true || data.firstLogin==="true";
-        localStorage.setItem("student", JSON.stringify(data.student));
-        localStorage.setItem("sheet", sheet);
-        localStorage.setItem("firstLogin", firstLogin);
+  try {
+    const res = await fetch(WEB_APP_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, password: pass, sheet })
+    });
 
-        if (firstLogin) {
-          document.getElementById("loginPage").classList.add("hidden");
-          document.getElementById("changePasswordPage").classList.remove("hidden");
-        } else {
-          showDashboard();
-        }
-      } catch(err) { console.error(err); msg.innerText="Network error!"; }
+    const data = await res.json();
+
+    if (data.error) {
+      alert(data.error);
+      return;
     }
+
+    localStorage.setItem("student", JSON.stringify(data.student));
+    localStorage.setItem("sheet", sheet);
+
+    showDashboard();
+
+  } catch (err) {
+    alert("Network error");
+  }
+}
 
     async function changePassword() {
-      const newPass = document.getElementById("newPassword").value.trim();
-      const confirmPass = document.getElementById("confirmPassword").value.trim();
-      const msg = document.getElementById("passwordMsg");
-      if (!newPass || !confirmPass) { msg.innerText="Enter both fields."; return; }
-      if (newPass !== confirmPass) { msg.innerText="Passwords do not match."; return; }
+  const newPass = newPassword.value;
+  const confirm = confirmPassword.value;
 
-      const student = JSON.parse(localStorage.getItem("student"));
-      const sheet = localStorage.getItem("sheet");
+  if (newPass !== confirm) {
+    alert("Passwords do not match");
+    return;
+  }
 
-      try {
-        const res = await fetch(WEB_APP_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: student.StudentID, password: student.Password, sheet, newPassword: newPass })
-        });
-        const data = await res.json();
-        if (data.error){ msg.innerText=data.error; return; }
+  const student = JSON.parse(localStorage.getItem("student"));
+  const sheet = localStorage.getItem("sheet");
 
-        student.Password = newPass;
-        localStorage.setItem("student", JSON.stringify(student));
-        localStorage.setItem("firstLogin", false);
-        showDashboard();
-      } catch(err){ console.error(err); msg.innerText="Password update failed."; }
+  try {
+    const res = await fetch(WEB_APP_URL, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        id: student.StudentID,
+        password: student.Password,
+        sheet,
+        newPassword: newPass
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+      alert(data.error);
+      return;
     }
+
+    alert("Password updated!");
+    showDashboard();
+
+  } catch (err) {
+    alert("Update failed");
+  }
+}
 
     function showDashboard() {
       const student = JSON.parse(localStorage.getItem("student"));
