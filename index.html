@@ -19,7 +19,6 @@
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
       background-color: #fff;
     }
-
     .login-container img { display:block; margin:0 auto 20px; width:80px; height:80px; }
 
     /* Navbar logo */
@@ -28,9 +27,7 @@
     /* Buttons */
     .btn-gradient {
       background: linear-gradient(90deg, #4b6cb7, #182848);
-      color:#fff;
-      border:none;
-      transition:.3s;
+      color:#fff; border:none; transition:.3s;
     }
     .btn-gradient:hover { opacity:.9; }
 
@@ -50,7 +47,6 @@
     html,body { height:100%; margin:0; display:flex; flex-direction:column; }
     #loginPage, #changePasswordPage, #dashboardPage { flex:1; }
     .footer { margin-top:auto; padding:15px 0; background-color:#f8f9fa; width:100%; }
-    body { visibility:hidden; }
 
     /* Loader */
     #loader {
@@ -66,100 +62,105 @@
   </style>
 </head>
 <body>
-  <div id="loader"><div class="spinner"></div></div>
 
-  <!-- Login Page -->
-  <div id="loginPage" class="hidden flex-grow-1">
-    <div class="login-container">
-      <img src="./login.png" alt="Login Icon">
-      <h3 class="text-center mb-4">Student Login</h3>
+<div id="loader"><div class="spinner"></div></div>
+
+<!-- Login Page -->
+<div id="loginPage" class="flex-grow-1">
+  <div class="login-container">
+    <img src="./login.png" alt="Login Icon">
+    <h3 class="text-center mb-4">Student Login</h3>
+    <div class="mb-3">
+      <label>Student ID</label>
+      <input type="text" id="studentId" class="form-control">
+    </div>
+    <div class="mb-3">
+      <label>Password</label>
+      <input type="password" id="password" class="form-control">
+    </div>
+    <div class="mb-3">
+      <label>Select course code / section</label>
+      <select id="sheet" class="form-select">
+        <option value="">-- Select --</option>
+      </select>
+    </div>
+    <div id="loginMsg" class="text-danger mb-3"></div>
+    <button onclick="login()" class="btn btn-gradient w-100">Login</button>
+  </div>
+</div>
+
+<!-- Change Password -->
+<div id="changePasswordPage" class="container mt-5 hidden">
+  <h2 class="text-center mb-4">Change Password</h2>
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-6">
       <div class="mb-3">
-        <label>Student ID</label>
-        <input type="text" id="studentId" class="form-control">
+        <label>New Password</label>
+        <input type="password" id="newPassword" class="form-control">
       </div>
       <div class="mb-3">
-        <label>Password</label>
-        <input type="password" id="password" class="form-control">
+        <label>Confirm Password</label>
+        <input type="password" id="confirmPassword" class="form-control">
       </div>
-      <div class="mb-3">
-        <label>Select course code / section</label>
-        <select id="sheet" class="form-select">
-          <option value="">-- Select --</option>
-        </select>
-      </div>
-      <div id="loginMsg" class="text-danger mb-3"></div>
-      <button onclick="login()" class="btn btn-gradient w-100">Login</button>
+      <div id="passwordMsg" class="text-danger mb-3"></div>
+      <button onclick="changePassword()" class="btn btn-gradient w-100">Update Password</button>
     </div>
   </div>
+</div>
 
-  <!-- Change Password -->
-  <div id="changePasswordPage" class="container mt-5 hidden">
-    <h2 class="text-center mb-4">Change Password</h2>
-    <div class="row justify-content-center">
-      <div class="col-12 col-md-6">
-        <div class="mb-3">
-          <label>New Password</label>
-          <input type="password" id="newPassword" class="form-control">
-        </div>
-        <div class="mb-3">
-          <label>Confirm Password</label>
-          <input type="password" id="confirmPassword" class="form-control">
-        </div>
-        <div id="passwordMsg" class="text-danger mb-3"></div>
-        <button onclick="changePassword()" class="btn btn-gradient w-100">Update Password</button>
+<!-- Dashboard -->
+<div id="dashboardPage" class="hidden flex-grow-1">
+  <nav class="navbar navbar-expand-lg navbar-custom mb-4">
+    <div class="container-fluid">
+      <a class="navbar-brand d-flex align-items-center" href="#">
+        <img src="./diredawa-university.png" alt="DDU Logo">
+        <span>Student Portal</span>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto" id="dashboardTabs">
+          <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#homeTab">Home</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#viewResultTab">View Result</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#aboutTab">About</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#contactTab">Contact</button></li>
+          <li class="nav-item"><button class="nav-link btn-gradient text-white ms-2" onclick="logout()">Logout</button></li>
+        </ul>
       </div>
     </div>
-  </div>
+  </nav>
 
-  <!-- Dashboard -->
-  <div id="dashboardPage" class="hidden flex-grow-1">
-    <nav class="navbar navbar-expand-lg navbar-custom mb-4">
-      <div class="container-fluid">
-        <a class="navbar-brand d-flex align-items-center" href="#">
-          <img src="./diredawa-university.png" alt="DDU Logo">
-          <span>Student Portal</span>
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-          <ul class="navbar-nav ms-auto" id="dashboardTabs">
-            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#homeTab">Home</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#viewResultTab">View Result</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#aboutTab">About</button></li>
-            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#contactTab">Contact</button></li>
-            <li class="nav-item"><button class="nav-link btn-gradient text-white ms-2" onclick="logout()">Logout</button></li>
-          </ul>
+  <div class="container">
+    <h4 id="welcomeMsg" class="mb-4"></h4>
+    <div class="tab-content">
+      <div class="tab-pane fade show active" id="homeTab">Welcome to the Student Result Portal.</div>
+      <div class="tab-pane fade" id="viewResultTab">
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped table-sm" id="resultTable">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
         </div>
       </div>
-    </nav>
-
-    <div class="container">
-      <h4 id="welcomeMsg" class="mb-4"></h4>
-      <div class="tab-content">
-        <div class="tab-pane fade show active" id="homeTab">Welcome to the Student Result Portal.</div>
-        <div class="tab-pane fade" id="viewResultTab">
-          <div class="table-responsive">
-            <table class="table table-bordered table-striped table-sm" id="resultTable">
-              <thead></thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-        <div class="tab-pane fade" id="aboutTab">This is the Student Result Portal for multiple courses.</div>
-        <div class="tab-pane fade" id="contactTab">Contact: berihun.chalachew@ddu.edu.et</div>
-      </div>
+      <div class="tab-pane fade" id="aboutTab">This is the Student Result Portal for multiple courses.</div>
+      <div class="tab-pane fade" id="contactTab">Contact: berihun.chalachew@ddu.edu.et</div>
     </div>
   </div>
+</div>
 
-  <div class="footer">&copy; 2026 Dire Dawa University - Student Result PWA</div>
+<div class="footer">&copy; 2026 Dire Dawa University - Student Result PWA</div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyTLuUzF9LG1EUer3znlohVhIpHlMVVlja5hJHu01T2qBBgBRJWxL5d03mb6R3GoAXp/exec"; // Replace with your deployed Apps Script URL
+const WEB_APP_URL = "https://script.google.com/macros/s/YOUR_DEPLOYED_SCRIPT_URL/exec"; // <-- replace
 
 window.onload = async () => {
-  await populateSheets();
+  try {
+    await populateSheets();
+  } catch(e) {
+    console.error(e);
+  }
   document.body.style.visibility = 'visible';
   document.getElementById('loader').style.display = 'none';
 };
@@ -172,12 +173,11 @@ async function populateSheets() {
     });
     const data = await res.json();
     const select = document.getElementById('sheet');
+    select.innerHTML = '<option value="">-- Select --</option>';
     if (data.sheets) {
-      select.innerHTML = '<option value="">-- Select --</option>';
       data.sheets.forEach(s => {
         const opt = document.createElement('option');
-        opt.value = s;
-        opt.textContent = s;
+        opt.value = s; opt.textContent = s;
         select.appendChild(opt);
       });
     }
@@ -207,6 +207,7 @@ async function login() {
       document.getElementById('loginMsg').textContent = data.error;
       return;
     }
+
     sessionStorage.setItem('student', JSON.stringify(data.student));
     if (data.firstLogin) {
       document.getElementById('loginPage').classList.add('hidden');
