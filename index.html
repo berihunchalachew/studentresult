@@ -28,11 +28,11 @@
 <!-- Login Page -->
 <div id="loginPage" class="hidden flex-grow-1">
   <div class="login-container">
-    <img src="./login.png" alt="Login Icon">
+    <img src="login.png" alt="Login Icon">
     <h3 class="text-center mb-4">Student Login</h3>
-    <div class="mb-3"><label>Student ID</label><input type="text" id="studentId" class="form-control"></div>
-    <div class="mb-3"><label>Password</label><input type="password" id="password" class="form-control"></div>
-    <div class="mb-3"><label>Select course code / section</label><select id="sheet" class="form-select"><option value="">-- Select --</option></select></div>
+    <div class="mb-3"><label>Student ID</label><input type="text" id="studentId" class="form-control" required></div>
+    <div class="mb-3"><label>Password</label><input type="password" id="password" class="form-control" required></div>
+    <div class="mb-3"><label>Select course code / section</label><select id="sheet" class="form-select" required><option value="">-- Select --</option></select></div>
     <div id="loginMsg" class="text-danger mb-3"></div>
     <button onclick="login()" class="btn btn-gradient w-100">Login</button>
   </div>
@@ -43,8 +43,8 @@
   <h2 class="text-center mb-4">Change Password</h2>
   <div class="row justify-content-center">
     <div class="col-12 col-md-6">
-      <div class="mb-3"><label>New Password</label><input type="password" id="newPassword" class="form-control"></div>
-      <div class="mb-3"><label>Confirm Password</label><input type="password" id="confirmPassword" class="form-control"></div>
+      <div class="mb-3"><label>New Password</label><input type="password" id="newPassword" class="form-control" required></div>
+      <div class="mb-3"><label>Confirm Password</label><input type="password" id="confirmPassword" class="form-control" required></div>
       <div id="passwordMsg" class="text-danger mb-3"></div>
       <button onclick="changePassword()" class="btn btn-gradient w-100">Update Password</button>
     </div>
@@ -56,7 +56,7 @@
   <nav class="navbar navbar-expand-lg navbar-custom mb-4">
     <div class="container-fluid">
       <a class="navbar-brand d-flex align-items-center" href="#">
-        <img src="./diredawa-university.png" alt="DDU Logo" height="40" style="margin-right:10px;">Student Portal
+        <img src="diredawa-university.png" alt="DDU Logo" height="40" style="margin-right:10px;">Student Portal
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
@@ -91,9 +91,10 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyxid5cbxsU8wpYMxFaF4tMAt_8MJlba3inmA_gq1l3kzGw_xPiHtu6uANXdLjnFoqm/exec"; // Replace with your deployed Apps Script URL
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyxid5cbxsU8wpYMxFaF4tMAt_8MJlba3inmA_gq1l3kzGw_xPiHtu6uANXdLjnFoqm/exec";
 
-window.addEventListener('DOMContentLoaded', async () => {
+// Wait for images and sheets to load
+window.addEventListener('load', async () => {
   await populateSheets();
   document.body.style.visibility = 'visible';
   document.getElementById('loader').style.display = 'none';
@@ -104,6 +105,7 @@ async function populateSheets() {
   try {
     const res = await fetch(WEB_APP_URL, {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ getSheets: true })
     });
     const data = await res.json();
@@ -128,22 +130,18 @@ async function login() {
   const studentId = document.getElementById('studentId').value.trim();
   const password = document.getElementById('password').value.trim();
   const sheet = document.getElementById('sheet').value;
-
   if (!studentId || !password || !sheet) {
     document.getElementById('loginMsg').textContent = "All fields are required.";
     return;
   }
-
   try {
     const res = await fetch(WEB_APP_URL, {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: studentId, password, sheet })
     });
     const data = await res.json();
-    if (data.error) {
-      document.getElementById('loginMsg').textContent = data.error;
-      return;
-    }
+    if (data.error) { document.getElementById('loginMsg').textContent = data.error; return; }
     sessionStorage.setItem('student', JSON.stringify(data.student));
     if (data.firstLogin) {
       document.getElementById('loginPage').classList.add('hidden');
@@ -162,11 +160,6 @@ function showDashboard(student) {
   document.getElementById('changePasswordPage').classList.add('hidden');
   document.getElementById('dashboardPage').classList.remove('hidden');
   document.getElementById('welcomeMsg').textContent = `Welcome, ${student.FirstName || student.Name || student.StudentID}`;
-
-  // Initialize Bootstrap tabs correctly
-  const tabElList = [].slice.call(document.querySelectorAll('#dashboardTabs button'));
-  tabElList.forEach(tabEl => new bootstrap.Tab(tabEl));
-
   loadResults(student);
 }
 
@@ -178,7 +171,6 @@ function loadResults(student) {
   const trHead = document.createElement('tr');
   headers.forEach(h => { const th = document.createElement('th'); th.textContent = h; trHead.appendChild(th); });
   thead.appendChild(trHead);
-
   const tbody = table.querySelector('tbody'); tbody.innerHTML = '';
   const trBody = document.createElement('tr');
   headers.forEach(h => { const td = document.createElement('td'); td.textContent = student[h]; trBody.appendChild(td); });
@@ -190,31 +182,17 @@ async function changePassword() {
   const newPassword = document.getElementById('newPassword').value.trim();
   const confirmPassword = document.getElementById('confirmPassword').value.trim();
   const student = JSON.parse(sessionStorage.getItem('student'));
-
-  if (!newPassword || !confirmPassword) {
-    document.getElementById('passwordMsg').textContent = "All fields required.";
-    return;
-  }
-  if (newPassword !== confirmPassword) {
-    document.getElementById('passwordMsg').textContent = "Passwords do not match.";
-    return;
-  }
+  if (!newPassword || !confirmPassword) { document.getElementById('passwordMsg').textContent = "All fields required."; return; }
+  if (newPassword !== confirmPassword) { document.getElementById('passwordMsg').textContent = "Passwords do not match."; return; }
 
   try {
     const res = await fetch(WEB_APP_URL, {
       method: "POST",
-      body: JSON.stringify({ 
-        id: student.StudentID, 
-        password: "123456", // default current password
-        newPassword: newPassword,
-        sheet: document.getElementById('sheet').value
-      })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: student.StudentID, newPassword, sheet: document.getElementById('sheet').value })
     });
     const data = await res.json();
-    if (data.error) {
-      document.getElementById('passwordMsg').textContent = data.error;
-      return;
-    }
+    if (data.error) { document.getElementById('passwordMsg').textContent = data.error; return; }
     sessionStorage.setItem('student', JSON.stringify(data.student));
     showDashboard(data.student);
   } catch(err) {
