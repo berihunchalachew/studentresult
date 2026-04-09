@@ -17,10 +17,10 @@ body{
   flex-direction:column;
 }
 
-/* HIDE SYSTEM */
+/* HIDE ELEMENTS */
 .hidden{ display:none !important; }
 
-/* LOGIN */
+/* LOGIN BOX */
 .login-box{
   max-width:400px;
   margin:80px auto;
@@ -60,6 +60,7 @@ body{
 .table-striped tbody tr:nth-of-type(odd) {
   background-color: rgba(255,255,255,0.1);
 }
+.table-responsive { overflow-x:auto; }
 
 /* FOOTER */
 .footer{
@@ -138,7 +139,7 @@ body{
 <div class="footer">© 2026 Dire Dawa University</div>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxTmpmrEfLRb8insGshrYKYfY6u6zkUSCHUOSjtYBh2vWFxVrsJTl5QKwSSBphniD4A/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/YOUR_WEB_APP_URL/exec";
 
 // INIT
 document.addEventListener('DOMContentLoaded', async ()=>{
@@ -152,57 +153,78 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 
 // LOAD SHEETS
 async function loadSheets(){
-  const res = await fetch(WEB_APP_URL,{
-    method:'POST',
-    body:JSON.stringify({getSheets:true})
-  });
-  const data = await res.json();
-  const select=document.getElementById('sheet');
-  select.innerHTML='<option value="">Select Course</option>';
-  data.sheets.forEach(s=>{
-    let o=document.createElement('option');
-    o.value=s;
-    o.textContent=s;
-    select.appendChild(o);
-  });
+  try {
+    const res = await fetch(WEB_APP_URL,{
+      method:'POST',
+      body:JSON.stringify({getSheets:true})
+    });
+    const data = await res.json();
+    const select=document.getElementById('sheet');
+    select.innerHTML='<option value="">Select Course</option>';
+    if(data.sheets){
+      data.sheets.forEach(s=>{
+        let o=document.createElement('option');
+        o.value=s;
+        o.textContent=s;
+        select.appendChild(o);
+      });
+    }
+  } catch(e){
+    console.error(e);
+    document.getElementById('loginMsg').textContent = "Failed to load sheets";
+  }
 }
 
 // LOGIN
 async function login(){
-  const id=studentId.value.trim();
-  const password=document.getElementById('password').value.trim();
-  const sheet=document.getElementById('sheet').value;
-  if(!id||!password||!sheet){ loginMsg.textContent="All fields required"; return; }
+  const id = studentId.value.trim();
+  const password = document.getElementById('password').value.trim();
+  const sheet = document.getElementById('sheet').value;
+  if(!id || !password || !sheet){ loginMsg.textContent="All fields required"; return; }
 
-  const res=await fetch(WEB_APP_URL,{
-    method:'POST',
-    body:JSON.stringify({id,password,sheet})
-  });
-  const data=await res.json();
-  if(data.error){ loginMsg.textContent=data.error; return; }
+  try{
+    const res = await fetch(WEB_APP_URL,{
+      method:'POST',
+      body:JSON.stringify({id,password,sheet})
+    });
+    const data = await res.json();
+    if(data.error){ loginMsg.textContent=data.error; return; }
 
-  sessionStorage.setItem('student',JSON.stringify({...data.student, sheet}));
+    sessionStorage.setItem('student', JSON.stringify({...data.student, sheet}));
 
-  data.firstLogin? showChange() : showDashboard({...data.student, sheet});
+    if(data.firstLogin){
+      showChange();
+    } else {
+      showDashboard({...data.student, sheet});
+    }
+  } catch(e){
+    console.error(e);
+    loginMsg.textContent="Login failed";
+  }
 }
 
 // CHANGE PASSWORD
 async function changePassword(){
-  const newP=newPassword.value;
-  const conf=confirmPassword.value;
-  const student=JSON.parse(sessionStorage.getItem('student'));
+  const newP = newPassword.value;
+  const conf = confirmPassword.value;
+  const student = JSON.parse(sessionStorage.getItem('student'));
   if(newP!==conf){ passMsg.textContent="Passwords do not match"; return; }
 
-  await fetch(WEB_APP_URL,{
-    method:'POST',
-    body:JSON.stringify({
-      action:'changePassword',
-      id:student.StudentID,
-      newPassword:newP,
-      sheet:student.sheet
-    })
-  });
-  showDashboard(student);
+  try{
+    await fetch(WEB_APP_URL,{
+      method:'POST',
+      body: JSON.stringify({
+        action:'changePassword',
+        id:student.StudentID,
+        newPassword:newP,
+        sheet: student.sheet
+      })
+    });
+    showDashboard(student);
+  } catch(e){
+    console.error(e);
+    passMsg.textContent="Failed to update password";
+  }
 }
 
 // SHOW DASHBOARD
@@ -216,65 +238,52 @@ function showDashboard(student){
   welcomeMsg.textContent = `Welcome, ${fname} ${father}`;
 
   switchTab('home');
-  loadResults(student.sheet);
 }
 
-// LOAD RESULTS DYNAMICALLY
-async function loadResults(sheetName){
+// LOAD RESULT TABLE FOR SINGLE STUDENT
+function loadResults(student){
   const table = document.getElementById('resultTable');
-  table.innerHTML = `<tr><td colspan="100%">Loading...</td></tr>`;
-  try {
-    const res = await fetch(WEB_APP_URL,{
-      method:'POST',
-      body: JSON.stringify({getResults:true, sheet: sheetName})
-    });
-    const data = await res.json();
+  table.innerHTML = '';
 
-    if(!data || data.length === 0){
-      table.innerHTML = `<tr><td colspan="100%">No results found</td></tr>`;
-      return;
-    }
-
-    table.innerHTML = '';
-
-    // Table headers
-    const headers = Object.keys(data[0]);
-    const trHead = document.createElement('tr');
-    headers.forEach(h=>{
-      const th = document.createElement('th');
-      th.textContent = h;
-      trHead.appendChild(th);
-    });
-    table.appendChild(trHead);
-
-    // Table rows
-    data.forEach(row=>{
-      const tr = document.createElement('tr');
-      headers.forEach(h=>{
-        const td = document.createElement('td');
-        td.textContent = row[h];
-        tr.appendChild(td);
-      });
-      table.appendChild(tr);
-    });
-  } catch(err){
-    console.error(err);
-    table.innerHTML = `<tr><td colspan="100%">Failed to load results</td></tr>`;
+  if(!student || Object.keys(student).length===0){
+    table.innerHTML = `<tr><td colspan="100%">No results found</td></tr>`;
+    return;
   }
+
+  // Headers
+  const trHead = document.createElement('tr');
+  Object.keys(student).forEach(key=>{
+    const th = document.createElement('th');
+    th.textContent = key;
+    trHead.appendChild(th);
+  });
+  table.appendChild(trHead);
+
+  // Values
+  const trRow = document.createElement('tr');
+  Object.values(student).forEach(val=>{
+    const td = document.createElement('td');
+    td.textContent = val;
+    trRow.appendChild(td);
+  });
+  table.appendChild(trRow);
 }
 
 // TAB SWITCH
 document.querySelectorAll('#tabs .nav-link').forEach(tab=>{
-  tab.onclick=()=>switchTab(tab.dataset.tab);
+  tab.onclick = ()=>switchTab(tab.dataset.tab);
 });
+
 function switchTab(tabName){
   document.querySelectorAll('.nav-link').forEach(t=>t.classList.remove('active'));
   document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
   document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('tab-active'));
   document.getElementById(tabName).classList.add('tab-active');
+
   if(tabName==='result'){
     const student = JSON.parse(sessionStorage.getItem('student'));
-    loadResults(student.sheet);
+    loadResults(student);
   }
 }
 
@@ -284,7 +293,7 @@ function logout(){
   location.reload();
 }
 
-// SHOW CHANGE PAGE
+// SHOW CHANGE PASSWORD PAGE
 function showChange(){
   loginPage.classList.add('hidden');
   changePage.classList.remove('hidden');
