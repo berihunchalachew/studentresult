@@ -7,28 +7,24 @@
 <link rel="manifest" href="manifest.json">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
-  body { margin:0; font-family:sans-serif; display:flex; flex-direction:column; min-height:100vh; background:#f2f2f2; }
+  body { visibility:hidden; margin:0; font-family:sans-serif; display:flex; flex-direction:column; min-height:100vh; }
   .hidden { display:none !important; }
-  #loader { position:fixed; top:0; left:0; width:100%; height:100%; display:flex; justify-content:center; align-items:center; background:#fff; z-index:9999; }
-  .spinner { width:50px; height:50px; border:5px solid #ddd; border-top:5px solid #4b6cb7; border-radius:50%; animation:spin 1s linear infinite; }
-  @keyframes spin { 100% { transform:rotate(360deg); } }
-
-  .login-container { max-width:400px; width:90%; margin:50px auto; padding:30px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); background:#fff; }
-  .login-container img { display:block; margin:0 auto 20px; width:80px; height:80px; }
+  #loader { position:fixed; top:0; left:0;width:100%;height:100%;display:flex;justify-content:center;align-items:center; background:#fff; z-index:9999; }
+  .spinner { width:50px;height:50px;border:5px solid #ddd;border-top:5px solid #4b6cb7;border-radius:50%; animation:spin 1s linear infinite; }
+  @keyframes spin{100%{transform:rotate(360deg);}}
+  .login-container { max-width:400px;margin:5vh auto;padding:30px;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,0.1); background:#fff; }
+  .login-container img{display:block;margin:0 auto 20px;width:80px;height:80px;}
   .btn-gradient { background: linear-gradient(90deg, #4b6cb7, #182848); color:#fff; border:none; transition:.3s; }
-  .btn-gradient:hover{ opacity:.9; }
-
+  .btn-gradient:hover{opacity:.9;}
   .navbar-custom { background: linear-gradient(90deg,#4b6cb7,#182848); }
   .navbar-custom .nav-link { color:#fff !important; margin-right:10px; }
   .navbar-custom .nav-link.active { background-color: rgba(255,255,255,0.2); border-radius:5px; }
-
   .footer { text-align:center; margin-top:auto; padding:15px 0; background:#f8f9fa; font-size:.9rem; color:#555; }
-
-  #welcomeMsg { font-size:1.2rem; margin-bottom:20px; word-break:break-word; }
-
-  .table-responsive { overflow-x:auto; }
-
-  #changePasswordPage { padding:20px; }
+  table { font-size:0.9rem; }
+  @media(max-width:576px){
+    .login-container { margin:10vh 15px; padding:20px; }
+    .navbar-brand img { height:30px; margin-right:5px; }
+  }
 </style>
 </head>
 <body>
@@ -49,34 +45,32 @@
 </div>
 
 <!-- Change Password -->
-<div id="changePasswordPage" class="hidden">
-  <div class="container">
-    <h2 class="text-center mb-4">Change Password</h2>
-    <div class="row justify-content-center">
-      <div class="col-12 col-md-6">
-        <div class="mb-3"><label>New Password</label><input type="password" id="newPassword" class="form-control"></div>
-        <div class="mb-3"><label>Confirm Password</label><input type="password" id="confirmPassword" class="form-control"></div>
-        <div id="passwordMsg" class="text-danger mb-3"></div>
-        <button onclick="changePassword()" class="btn btn-gradient w-100">Update Password</button>
-      </div>
+<div id="changePasswordPage" class="container mt-5 hidden">
+  <h2 class="text-center mb-4">Change Password</h2>
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-6">
+      <div class="mb-3"><label>New Password</label><input type="password" id="newPassword" class="form-control"></div>
+      <div class="mb-3"><label>Confirm Password</label><input type="password" id="confirmPassword" class="form-control"></div>
+      <div id="passwordMsg" class="text-danger mb-3"></div>
+      <button onclick="changePassword()" class="btn btn-gradient w-100">Update Password</button>
     </div>
   </div>
 </div>
 
 <!-- Dashboard -->
-<div id="dashboardPage" class="hidden flex-grow-1">
+<div id="dashboardPage" class="hidden flex-grow-1 d-flex flex-column">
   <nav class="navbar navbar-expand-lg navbar-custom mb-4">
     <div class="container-fluid">
       <a class="navbar-brand d-flex align-items-center" href="#">
-        <img src="./diredawa-university.png" alt="DDU Logo" height="40" style="margin-right:10px;">Student Portal
+        <img src="./diredawa-university.png" alt="DDU Logo"> Student Portal
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto" id="dashboardTabs">
-          <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#homeTab" onclick="refreshResults()">Home</a></li>
-          <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#viewResultTab" onclick="refreshResults()">View Result</a></li>
+          <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#homeTab">Home</a></li>
+          <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#viewResultTab">View Result</a></li>
           <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#aboutTab">About</a></li>
           <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#contactTab">Contact</a></li>
           <li class="nav-item"><button class="nav-link btn-gradient text-white ms-2" onclick="logout()">Logout</button></li>
@@ -84,13 +78,16 @@
       </div>
     </div>
   </nav>
-  <div class="container">
-    <h4 id="welcomeMsg"></h4>
-    <div class="tab-content">
+  <div class="container flex-grow-1">
+    <h4 id="welcomeMsg" class="mb-4"></h4>
+    <div class="tab-content flex-grow-1">
       <div class="tab-pane fade show active" id="homeTab">Welcome to the Student Result Portal.</div>
       <div class="tab-pane fade" id="viewResultTab">
         <div class="table-responsive">
-          <table class="table table-bordered table-striped table-sm" id="resultTable"><thead></thead><tbody></tbody></table>
+          <table class="table table-bordered table-striped table-sm" id="resultTable">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
         </div>
       </div>
       <div class="tab-pane fade" id="aboutTab">This is the Student Result Portal for multiple courses.</div>
@@ -103,34 +100,38 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzYNl5lB9LeYAyqBFZS3MUC0HfIEaNQt89iwE3d2KuzbbI8RJ3sbEG77RoImzccWuro/exec"; // Replace with your Apps Script /exec URL
+const WEB_APP_URL = "YOUR_DEPLOYED_WEB_APP_URL"; // Replace with your Apps Script /exec URL
 
-// Keep session on refresh
+// Load sheets and show login
 window.addEventListener('DOMContentLoaded', async () => {
   try {
     await populateSheets();
-    const student = JSON.parse(sessionStorage.getItem('student'));
-    if (student) showDashboard(student);
   } catch(e) {
-    console.error("Error initializing:", e);
+    console.error("Error populating sheets:", e);
+    alert("Unable to load sheet list. Check Web App URL and network.");
   } finally {
     document.getElementById('loginPage').classList.remove('hidden');
     document.body.style.visibility = 'visible';
     document.getElementById('loader').style.display = 'none';
   }
+
+  // Keep logged-in student on refresh
+  const student = JSON.parse(sessionStorage.getItem('student'));
+  if(student) showDashboard(student);
 });
 
+// Populate sheets dropdown
 async function populateSheets() {
   const select = document.getElementById('sheet');
-  try {
-    const res = await fetch(`${WEB_APP_URL}?getSheets=true`);
-    const data = await res.json();
-    if (data.sheets) {
-      select.innerHTML = '<option value="">-- Select --</option>';
-      data.sheets.forEach(s => select.appendChild(Object.assign(document.createElement('option'), { value:s, textContent:s })));
-    }
-  } catch(err) {
-    console.error("Failed to fetch sheets:", err);
+  const res = await fetch(WEB_APP_URL + '?getSheets=true');
+  const data = await res.json();
+  if(data.sheets) {
+    select.innerHTML = '<option value="">-- Select --</option>';
+    data.sheets.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s; opt.textContent = s;
+      select.appendChild(opt);
+    });
   }
 }
 
@@ -140,99 +141,91 @@ async function login() {
   const password = document.getElementById('password').value.trim();
   const sheet = document.getElementById('sheet').value;
   const msg = document.getElementById('loginMsg'); msg.textContent = "";
-  if (!studentId || !password || !sheet) { msg.textContent = "All fields are required."; return; }
+  if(!studentId || !password || !sheet){ msg.textContent="All fields are required."; return; }
 
   const res = await fetch(WEB_APP_URL, {
     method:"POST",
-    headers:{"Content-Type":"application/x-www-form-urlencoded"},
-    body: `id=${encodeURIComponent(studentId)}&password=${encodeURIComponent(password)}&sheet=${encodeURIComponent(sheet)}`
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({id:studentId, password, sheet})
   });
   const data = await res.json();
-  if (data.error) { msg.textContent = data.error; return; }
+  if(data.error){ msg.textContent=data.error; return; }
 
   sessionStorage.setItem('student', JSON.stringify(data.student));
-  if (data.firstLogin) {
+  if(data.firstLogin){
     document.getElementById('loginPage').classList.add('hidden');
     document.getElementById('changePasswordPage').classList.remove('hidden');
-  } else {
-    showDashboard(data.student);
-  }
+  } else showDashboard(data.student);
 }
 
-// Show Dashboard
-function showDashboard(student) {
+// Show dashboard
+function showDashboard(student){
   document.getElementById('loginPage').classList.add('hidden');
   document.getElementById('changePasswordPage').classList.add('hidden');
   document.getElementById('dashboardPage').classList.remove('hidden');
   document.getElementById('welcomeMsg').textContent = `Welcome, ${student['First Name'] || student['Student ID'] || student.Name}`;
 
-  // Initialize Bootstrap tabs properly
-  const tabElList = document.querySelectorAll('#dashboardTabs a[data-bs-toggle="tab"]');
-  tabElList.forEach(tabEl => {
+  // Initialize tabs
+  const tabs = document.querySelectorAll('#dashboardTabs a[data-bs-toggle="tab"]');
+  tabs.forEach(tabEl=>{
     const tab = new bootstrap.Tab(tabEl);
-    tabEl.addEventListener('shown.bs.tab', (e) => {
-      if (e.target.getAttribute('href') === '#viewResultTab') {
-        refreshResults(); // Refresh table when View Result tab is activated
-      }
+    tabEl.addEventListener('click', e=>{ e.preventDefault(); tab.show(); });
+    tabEl.addEventListener('shown.bs.tab', e=>{
+      if(e.target.getAttribute('href')==='#viewResultTab') refreshResults();
     });
   });
 
-  // Activate first tab (Home) by default
+  // Show Home tab
   bootstrap.Tab.getOrCreateInstance(document.querySelector('#dashboardTabs a[href="#homeTab"]')).show();
 }
 
-// Refresh Result Table dynamically
-async function refreshResults() {
+// Refresh results dynamically
+function refreshResults(){
   const student = JSON.parse(sessionStorage.getItem('student'));
-  if (!student) return;
-
-  const sheet = document.getElementById('sheet').value;
-  if (!sheet) return;
-
-  const res = await fetch(WEB_APP_URL, {
-    method:"POST",
-    headers:{"Content-Type":"application/x-www-form-urlencoded"},
-    body: `id=${encodeURIComponent(student['Student ID'])}&password=&sheet=${encodeURIComponent(sheet)}`
-  });
-  const data = await res.json();
-  if (!data.student) return;
-
+  if(!student) return;
   const table = document.getElementById('resultTable');
-  const headers = Object.keys(data.student);
-  const thead = table.querySelector('thead'); thead.innerHTML = '';
-  const trHead = document.createElement('tr');
-  headers.forEach(h => trHead.appendChild(Object.assign(document.createElement('th'), { textContent:h })));
-  thead.appendChild(trHead);
+  table.querySelector('thead').innerHTML='';
+  table.querySelector('tbody').innerHTML='';
 
-  const tbody = table.querySelector('tbody'); tbody.innerHTML = '';
-  const trBody = document.createElement('tr');
-  headers.forEach(h => trBody.appendChild(Object.assign(document.createElement('td'), { textContent:data.student[h] })));
-  tbody.appendChild(trBody);
+  Object.keys(student).filter(k=>k.toLowerCase()!=='student id').forEach((h,i)=>{
+    if(i===0){
+      const tr=document.createElement('tr');
+      Object.keys(student).filter(k=>k.toLowerCase()!=='student id').forEach(hd=>{
+        const th=document.createElement('th'); th.textContent=hd; tr.appendChild(th);
+      });
+      table.querySelector('thead').appendChild(tr);
+    }
+  });
+
+  const trBody=document.createElement('tr');
+  Object.keys(student).filter(k=>k.toLowerCase()!=='student id').forEach(h=>{
+    const td=document.createElement('td'); td.textContent=student[h]; trBody.appendChild(td);
+  });
+  table.querySelector('tbody').appendChild(trBody);
 }
 
-// Change Password
-async function changePassword() {
-  const newPassword = document.getElementById('newPassword').value.trim();
-  const confirmPassword = document.getElementById('confirmPassword').value.trim();
-  const student = JSON.parse(sessionStorage.getItem('student'));
-  const msg = document.getElementById('passwordMsg'); msg.textContent = "";
-  if (!newPassword || !confirmPassword) { msg.textContent="All fields required"; return; }
-  if (newPassword !== confirmPassword) { msg.textContent="Passwords do not match"; return; }
+// Change password
+async function changePassword(){
+  const newPassword=document.getElementById('newPassword').value.trim();
+  const confirmPassword=document.getElementById('confirmPassword').value.trim();
+  const student=JSON.parse(sessionStorage.getItem('student'));
+  const msg=document.getElementById('passwordMsg'); msg.textContent="";
+  if(!newPassword||!confirmPassword){ msg.textContent="All fields required."; return; }
+  if(newPassword!==confirmPassword){ msg.textContent="Passwords do not match."; return; }
 
-  const res = await fetch(WEB_APP_URL, {
+  const res=await fetch(WEB_APP_URL,{
     method:"POST",
-    headers:{"Content-Type":"application/x-www-form-urlencoded"},
-    body: `action=changePassword&id=${encodeURIComponent(student['Student ID'])}&newPassword=${encodeURIComponent(newPassword)}&sheet=${encodeURIComponent(document.getElementById('sheet').value)}`
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({action:"changePassword", id:student['Student ID'], newPassword, sheet:document.getElementById('sheet').value})
   });
-  const data = await res.json();
-  if (data.error) { msg.textContent = data.error; return; }
-
+  const data=await res.json();
+  if(data.error){ msg.textContent=data.error; return; }
   sessionStorage.setItem('student', JSON.stringify(data.student));
   showDashboard(data.student);
 }
 
 // Logout
-function logout() {
+function logout(){
   sessionStorage.clear();
   document.getElementById('dashboardPage').classList.add('hidden');
   document.getElementById('loginPage').classList.remove('hidden');
