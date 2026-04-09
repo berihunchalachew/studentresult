@@ -4,66 +4,80 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Student Result PWA</title>
+<title>DDU Student Result Portal</title>
 
-<link rel="manifest" href="manifest.json">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <style>
-body { visibility:hidden; margin:0; font-family:sans-serif; display:flex; flex-direction:column; min-height:100vh; }
-.hidden { display:none !important; }
-
-#loader {
-  position:fixed; top:0; left:0;
-  width:100%; height:100%;
-  display:flex; justify-content:center; align-items:center;
-  background:#fff; z-index:9999;
+body{
+  margin:0;
+  font-family:'Segoe UI',sans-serif;
+  background:linear-gradient(135deg,#4b6cb7,#182848);
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
 }
 
-.spinner {
-  width:50px;height:50px;
-  border:5px solid #ddd;
-  border-top:5px solid #4b6cb7;
-  border-radius:50%;
-  animation:spin 1s linear infinite;
-}
-
-@keyframes spin{100%{transform:rotate(360deg);}}
-
-.login-container {
-  max-width:400px;
-  margin:100px auto;
-  padding:30px;
-  border-radius:12px;
-  box-shadow:0 4px 15px rgba(0,0,0,0.1);
+/* Loader */
+#loader{
+  position:fixed;
+  width:100%;
+  height:100%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
   background:#fff;
+  z-index:9999;
 }
 
-.btn-gradient {
-  background: linear-gradient(90deg,#4b6cb7,#182848);
+/* Login Card */
+.card-box{
+  max-width:400px;
+  margin:80px auto;
+  padding:30px;
+  border-radius:15px;
+  background:#fff;
+  box-shadow:0 10px 25px rgba(0,0,0,0.2);
+}
+
+/* Login Icon */
+.login-icon{
+  width:90px;
+  display:block;
+  margin:0 auto 20px;
+}
+
+/* Buttons */
+.btn-main{
+  background:#4b6cb7;
   color:#fff;
   border:none;
 }
+.btn-main:hover{ background:#3a57a0; }
 
-.navbar-custom {
-  background: linear-gradient(90deg,#4b6cb7,#182848);
+/* Navbar */
+.navbar-custom{
+  background:#182848;
 }
-
-.navbar-custom .nav-link {
+.navbar-custom .nav-link{
   color:#fff !important;
   cursor:pointer;
 }
-
-.navbar-custom .nav-link.active {
-  background:rgba(255,255,255,0.2);
+.navbar-custom .nav-link.active{
+  background:#4b6cb7;
   border-radius:5px;
 }
 
-.footer {
-  text-align:center;
+/* Tabs */
+.tab-pane{ display:none; }
+.tab-active{ display:block; }
+
+/* Footer */
+.footer{
   margin-top:auto;
+  text-align:center;
   padding:10px;
-  background:#f1f1f1;
+  background:#fff;
 }
 </style>
 
@@ -71,104 +85,96 @@ body { visibility:hidden; margin:0; font-family:sans-serif; display:flex; flex-d
 
 <body>
 
-<div id="loader"><div class="spinner"></div></div>
+<div id="loader"><h4>Loading...</h4></div>
 
 <!-- LOGIN -->
 
-<div id="loginPage" class="hidden flex-grow-1">
-  <div class="login-container">
-    <h3 class="text-center mb-4">Student Login</h3>
+<div id="loginPage" class="card-box">
+  <img src="login.png" class="login-icon">
+  <h4 class="text-center mb-3">Student Login</h4>
 
-```
-<input id="studentId" class="form-control mb-2" placeholder="Student ID">
-<input id="password" type="password" class="form-control mb-2" placeholder="Password">
+  <input id="studentId" class="form-control mb-2" placeholder="Student ID">
+  <input id="password" type="password" class="form-control mb-2" placeholder="Password">
 
 <select id="sheet" class="form-select mb-3"></select>
 
-<div id="loginMsg" class="text-danger mb-2"></div>
+  <div id="loginMsg" class="text-danger mb-2"></div>
 
-<button class="btn btn-gradient w-100" onclick="login()">Login</button>
-```
+<button class="btn btn-main w-100" onclick="login()">Login</button>
 
-  </div>
-</div>
-
-<!-- CHANGE PASSWORD -->
-
-<div id="changePasswordPage" class="container mt-5 hidden">
-  <h3 class="text-center mb-3">Change Password</h3>
-
-  <div class="row justify-content-center">
-    <div class="col-md-5">
-
-```
-  <input id="newPassword" type="password" class="form-control mb-2" placeholder="New Password">
-  <input id="confirmPassword" type="password" class="form-control mb-2" placeholder="Confirm Password">
-
-  <div id="passwordMsg" class="text-danger mb-2"></div>
-
-  <button class="btn btn-gradient w-100" onclick="changePassword()">Update Password</button>
-
-</div>
-```
-
-  </div>
 </div>
 
 <!-- DASHBOARD -->
 
-<div id="dashboardPage" class="hidden flex-grow-1">
+<div id="dashboardPage" class="hidden">
 
-  <nav class="navbar navbar-expand-lg navbar-custom mb-4">
-    <div class="container-fluid">
-      <span class="navbar-brand text-white">Student Portal</span>
-
-```
-  <ul class="navbar-nav ms-auto" id="tabs">
-    <li class="nav-item"><span class="nav-link active" data-tab="homeTab">Home</span></li>
-    <li class="nav-item"><span class="nav-link" data-tab="resultTab">View Result</span></li>
-    <li class="nav-item"><span class="nav-link" data-tab="aboutTab">About</span></li>
-    <li class="nav-item"><span class="nav-link" data-tab="contactTab">Contact</span></li>
-    <li class="nav-item"><button class="btn btn-light btn-sm ms-2" onclick="logout()">Logout</button></li>
-  </ul>
-</div>
-```
-
-  </nav>
-
-  <div class="container">
+<nav class="navbar navbar-expand-lg navbar-custom">
+  <div class="container-fluid">
 
 ```
-<h5 id="welcomeMsg"></h5>
-
-<!-- TABS -->
-<div id="homeTab" class="tab-pane">Welcome to the Student Result Portal.</div>
-
-<div id="resultTab" class="tab-pane hidden">
-  <div class="table-responsive">
-    <table class="table table-bordered" id="resultTable">
-      <thead></thead>
-      <tbody></tbody>
-    </table>
-  </div>
+<!-- DDU LOGO -->
+<div class="d-flex align-items-center text-white">
+  <img src="ddu.png" height="40" style="margin-right:10px;">
+  <strong>DDU Student Portal</strong>
 </div>
 
-<div id="aboutTab" class="tab-pane hidden">
-  This system allows students to view results securely.
-</div>
-
-<div id="contactTab" class="tab-pane hidden">
-  Contact: berihun.chalachew@ddu.edu.et
-</div>
+<ul class="navbar-nav ms-auto" id="tabs">
+  <li class="nav-item"><span class="nav-link active" data-tab="home">Home</span></li>
+  <li class="nav-item"><span class="nav-link" data-tab="result">Result</span></li>
+  <li class="nav-item"><span class="nav-link" data-tab="about">About</span></li>
+  <li class="nav-item"><span class="nav-link" data-tab="contact">Contact</span></li>
+  <li class="nav-item"><button class="btn btn-light btn-sm ms-2" onclick="logout()">Logout</button></li>
+</ul>
 ```
 
   </div>
+</nav>
+
+<div class="container mt-4">
+
+  <h5 id="welcomeMsg" class="text-white"></h5>
+
+  <!-- HOME -->
+
+  <div id="home" class="tab-pane tab-active text-white">
+    <div class="card p-3">
+      Welcome to Dire Dawa University Student Result System.
+    </div>
+  </div>
+
+  <!-- RESULT -->
+
+  <div id="result" class="tab-pane">
+    <div class="card p-3">
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped" id="resultTable"></table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+
+  <div id="about" class="tab-pane">
+    <div class="card p-3">
+      This system allows students to securely view academic results.
+    </div>
+  </div>
+
+  <!-- CONTACT -->
+
+  <div id="contact" class="tab-pane">
+    <div class="card p-3">
+      Email: berihun.chalachew@ddu.edu.et
+    </div>
+  </div>
+
+</div>
 </div>
 
-<div class="footer">© 2026 Student Result System</div>
+<div class="footer">© 2026 Dire Dawa University</div>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby5o8P1ZrXkZtBnYmU-qsNekU6hTIZ1blVy3sYwW-__uJ1BSJVryVIwqeN4vZLo8wSk/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxTmpmrEfLRb8insGshrYKYfY6u6zkUSCHUOSjtYBh2vWFxVrsJTl5QKwSSBphniD4A/exec";
 
 // INIT
 document.addEventListener('DOMContentLoaded', async ()=>{
@@ -176,160 +182,115 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 
   if(student){
     showDashboard(student);
-  }else{
+  } else {
     await loadSheets();
-    showLogin();
   }
 
-  document.body.style.visibility='visible';
   document.getElementById('loader').style.display='none';
 });
 
-// LOAD SHEETS (FIXED)
+// LOAD SHEETS
 async function loadSheets(){
   try{
     const res = await fetch(WEB_APP_URL,{
       method:'POST',
-      body: JSON.stringify({getSheets:true})
+      body:JSON.stringify({getSheets:true})
     });
 
     const data = await res.json();
 
-    const select = document.getElementById('sheet');
-    select.innerHTML='<option value="">-- Select --</option>';
+    const select=document.getElementById('sheet');
+    select.innerHTML='<option value="">-- Select Course --</option>';
 
-    data.sheets.forEach(s=>{
-      const opt=document.createElement('option');
-      opt.value=s;
-      opt.textContent=s;
-      select.appendChild(opt);
-    });
+    if(data.sheets){
+      data.sheets.forEach(s=>{
+        let o=document.createElement('option');
+        o.value=s;
+        o.textContent=s;
+        select.appendChild(o);
+      });
+    }
 
   }catch(e){
     alert("Failed to load sheets");
-    console.error(e);
   }
 }
 
 // LOGIN
 async function login(){
-  const id = studentId.value.trim();
-  const password = document.getElementById('password').value.trim();
-  const sheet = document.getElementById('sheet').value;
+  const id=studentId.value.trim();
+  const password=document.getElementById('password').value.trim();
+  const sheet=document.getElementById('sheet').value;
 
   if(!id || !password || !sheet){
     loginMsg.textContent="All fields required";
     return;
   }
 
-  const res = await fetch(WEB_APP_URL,{
+  const res=await fetch(WEB_APP_URL,{
     method:'POST',
-    body: JSON.stringify({id,password,sheet})
+    body:JSON.stringify({id,password,sheet})
   });
 
-  const data = await res.json();
+  const data=await res.json();
 
   if(data.error){
     loginMsg.textContent=data.error;
     return;
   }
 
-  sessionStorage.setItem('student', JSON.stringify(data.student));
-
-  if(data.firstLogin){
-    showChange();
-  }else{
-    showDashboard(data.student);
-  }
+  sessionStorage.setItem('student',JSON.stringify(data.student));
+  showDashboard(data.student);
 }
 
-// CHANGE PASSWORD
-async function changePassword(){
-  const newPassword = document.getElementById('newPassword').value;
-  const confirmPassword = document.getElementById('confirmPassword').value;
-  const student = JSON.parse(sessionStorage.getItem('student'));
-
-  if(newPassword !== confirmPassword){
-    passwordMsg.textContent="Passwords do not match";
-    return;
-  }
-
-  await fetch(WEB_APP_URL,{
-    method:'POST',
-    body: JSON.stringify({
-      action:'changePassword',
-      id: student.StudentID,
-      newPassword,
-      sheet: document.getElementById('sheet').value
-    })
-  });
-
-  showDashboard(student);
-}
-
-// DASHBOARD
+// SHOW DASHBOARD
 function showDashboard(student){
-  loginPage.classList.add('hidden');
-  changePasswordPage.classList.add('hidden');
-  dashboardPage.classList.remove('hidden');
+  document.getElementById('loginPage').style.display='none';
+  document.getElementById('dashboardPage').classList.remove('hidden');
 
-  welcomeMsg.textContent = "Welcome, " + (student['First Name'] || student.StudentID);
+  welcomeMsg.textContent="Welcome, "+(student['First Name']||student.StudentID);
 
   loadResults(student);
 }
 
 // LOAD RESULTS
 function loadResults(student){
-  const table = document.getElementById('resultTable');
-  table.querySelector('thead').innerHTML='';
-  table.querySelector('tbody').innerHTML='';
-
-  const headers = Object.keys(student);
+  const table=document.getElementById('resultTable');
+  table.innerHTML='';
 
   let tr=document.createElement('tr');
-  headers.forEach(h=>{
-    let th=document.createElement('th');
-    th.textContent=h;
-    tr.appendChild(th);
+  Object.keys(student).forEach(k=>{
+    let th=document.createElement('th'); th.textContent=k; tr.appendChild(th);
   });
-  table.querySelector('thead').appendChild(tr);
+  table.appendChild(tr);
 
   let tr2=document.createElement('tr');
-  headers.forEach(h=>{
-    let td=document.createElement('td');
-    td.textContent=student[h];
-    tr2.appendChild(td);
+  Object.values(student).forEach(v=>{
+    let td=document.createElement('td'); td.textContent=v; tr2.appendChild(td);
   });
-  table.querySelector('tbody').appendChild(tr2);
+  table.appendChild(tr2);
 }
 
-// TAB SWITCH (FIXED + AUTO REFRESH)
+// TAB SWITCHING
 document.querySelectorAll('#tabs .nav-link').forEach(tab=>{
-  tab.addEventListener('click', ()=>{
+  tab.onclick=()=>{
     document.querySelectorAll('.nav-link').forEach(t=>t.classList.remove('active'));
     tab.classList.add('active');
 
-    document.querySelectorAll('.tab-pane').forEach(p=>p.classList.add('hidden'));
-    document.getElementById(tab.dataset.tab).classList.remove('hidden');
+    document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('tab-active'));
+    document.getElementById(tab.dataset.tab).classList.add('tab-active');
 
-    if(tab.dataset.tab === 'resultTab'){
-      const student = JSON.parse(sessionStorage.getItem('student'));
-      loadResults(student); // AUTO REFRESH
+    if(tab.dataset.tab==='result'){
+      const student=JSON.parse(sessionStorage.getItem('student'));
+      loadResults(student);
     }
-  });
+  };
 });
 
 // LOGOUT
 function logout(){
   sessionStorage.clear();
   location.reload();
-}
-
-// UI
-function showLogin(){ loginPage.classList.remove('hidden'); }
-function showChange(){
-  loginPage.classList.add('hidden');
-  changePasswordPage.classList.remove('hidden');
 }
 </script>
 
