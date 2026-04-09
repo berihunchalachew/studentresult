@@ -245,28 +245,40 @@ function loadResults(student){
   const table = document.getElementById('resultTable');
   table.innerHTML = '';
 
-  if(!student || Object.keys(student).length===0){
-    table.innerHTML = `<tr><td colspan="100%">No results found</td></tr>`;
+  if(!student){
+    table.innerHTML = `<tr><td>No data found</td></tr>`;
     return;
   }
 
-  // Headers
+  // filter only real result fields (IMPORTANT FIX)
+  const keys = Object.keys(student).filter(k =>
+    k !== 'StudentID' &&
+    k !== 'Password' &&
+    k !== 'sheet'
+  );
+
+  if(keys.length === 0){
+    table.innerHTML = `<tr><td>No result fields found</td></tr>`;
+    return;
+  }
+
+  // HEADER
   const trHead = document.createElement('tr');
-  Object.keys(student).forEach(key=>{
+  keys.forEach(k=>{
     const th = document.createElement('th');
-    th.textContent = key;
+    th.textContent = k;
     trHead.appendChild(th);
   });
   table.appendChild(trHead);
 
-  // Values
-  const trRow = document.createElement('tr');
-  Object.values(student).forEach(val=>{
+  // DATA ROW
+  const tr = document.createElement('tr');
+  keys.forEach(k=>{
     const td = document.createElement('td');
-    td.textContent = val;
-    trRow.appendChild(td);
+    td.textContent = student[k] ?? '';
+    tr.appendChild(td);
   });
-  table.appendChild(trRow);
+  table.appendChild(tr);
 }
 
 // TAB SWITCH
