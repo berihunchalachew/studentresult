@@ -1,231 +1,335 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Student Result PWA</title>
+
 <link rel="manifest" href="manifest.json">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
 <style>
 body { visibility:hidden; margin:0; font-family:sans-serif; display:flex; flex-direction:column; min-height:100vh; }
 .hidden { display:none !important; }
-#loader { position:fixed; top:0; left:0;width:100%;height:100%;display:flex;justify-content:center;align-items:center; background:#fff; z-index:9999; }
-.spinner { width:50px;height:50px;border:5px solid #ddd;border-top:5px solid #4b6cb7;border-radius:50%; animation:spin 1s linear infinite; }
-@keyframes spin{100%{transform:rotate(360deg);} }
-.login-container { max-width:400px;margin:100px auto;padding:30px;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,0.1); background:#fff; }
-.login-container img{display:block;margin:0 auto 20px;width:80px;height:80px;}
-.btn-gradient { background: linear-gradient(90deg, #4b6cb7, #182848); color:#fff; border:none; transition:.3s; }
-.btn-gradient:hover{opacity:.9;}
-.navbar-custom { background: linear-gradient(90deg,#4b6cb7,#182848); }
-.navbar-custom .nav-link { color:#fff !important; margin-right:10px; cursor:pointer; }
-.navbar-custom .nav-link.active { background-color: rgba(255,255,255,0.2); border-radius:5px; }
-.footer { text-align:center; margin-top:auto; padding:15px 0; background:#f8f9fa; font-size:.9rem; color:#555; }
-@media(max-width:576px){ .login-container{margin:50px 10px; padding:20px;} }
+
+#loader {
+  position:fixed; top:0; left:0;
+  width:100%; height:100%;
+  display:flex; justify-content:center; align-items:center;
+  background:#fff; z-index:9999;
+}
+
+.spinner {
+  width:50px;height:50px;
+  border:5px solid #ddd;
+  border-top:5px solid #4b6cb7;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+
+@keyframes spin{100%{transform:rotate(360deg);}}
+
+.login-container {
+  max-width:400px;
+  margin:100px auto;
+  padding:30px;
+  border-radius:12px;
+  box-shadow:0 4px 15px rgba(0,0,0,0.1);
+  background:#fff;
+}
+
+.btn-gradient {
+  background: linear-gradient(90deg,#4b6cb7,#182848);
+  color:#fff;
+  border:none;
+}
+
+.navbar-custom {
+  background: linear-gradient(90deg,#4b6cb7,#182848);
+}
+
+.navbar-custom .nav-link {
+  color:#fff !important;
+  cursor:pointer;
+}
+
+.navbar-custom .nav-link.active {
+  background:rgba(255,255,255,0.2);
+  border-radius:5px;
+}
+
+.footer {
+  text-align:center;
+  margin-top:auto;
+  padding:10px;
+  background:#f1f1f1;
+}
 </style>
+
 </head>
+
 <body>
 
 <div id="loader"><div class="spinner"></div></div>
 
-<!-- Login Page -->
+<!-- LOGIN -->
+
 <div id="loginPage" class="hidden flex-grow-1">
   <div class="login-container">
-    <img src="./login.png" alt="Login Icon">
     <h3 class="text-center mb-4">Student Login</h3>
-    <div class="mb-3"><label>Student ID</label><input type="text" id="studentId" class="form-control"></div>
-    <div class="mb-3"><label>Password</label><input type="password" id="password" class="form-control"></div>
-    <div class="mb-3"><label>Select course code / section</label><select id="sheet" class="form-select"><option value="">-- Select --</option></select></div>
-    <div id="loginMsg" class="text-danger mb-3"></div>
-    <button id="loginBtn" class="btn btn-gradient w-100">Login</button>
+
+```
+<input id="studentId" class="form-control mb-2" placeholder="Student ID">
+<input id="password" type="password" class="form-control mb-2" placeholder="Password">
+
+<select id="sheet" class="form-select mb-3"></select>
+
+<div id="loginMsg" class="text-danger mb-2"></div>
+
+<button class="btn btn-gradient w-100" onclick="login()">Login</button>
+```
+
   </div>
 </div>
 
-<!-- Change Password -->
+<!-- CHANGE PASSWORD -->
+
 <div id="changePasswordPage" class="container mt-5 hidden">
-  <h2 class="text-center mb-4">Change Password</h2>
+  <h3 class="text-center mb-3">Change Password</h3>
+
   <div class="row justify-content-center">
-    <div class="col-12 col-md-6">
-      <div class="mb-3"><label>New Password</label><input type="password" id="newPassword" class="form-control"></div>
-      <div class="mb-3"><label>Confirm Password</label><input type="password" id="confirmPassword" class="form-control"></div>
-      <div id="passwordMsg" class="text-danger mb-3"></div>
-      <button id="updatePasswordBtn" class="btn btn-gradient w-100">Update Password</button>
-    </div>
+    <div class="col-md-5">
+
+```
+  <input id="newPassword" type="password" class="form-control mb-2" placeholder="New Password">
+  <input id="confirmPassword" type="password" class="form-control mb-2" placeholder="Confirm Password">
+
+  <div id="passwordMsg" class="text-danger mb-2"></div>
+
+  <button class="btn btn-gradient w-100" onclick="changePassword()">Update Password</button>
+
+</div>
+```
+
   </div>
 </div>
 
-<!-- Dashboard -->
+<!-- DASHBOARD -->
+
 <div id="dashboardPage" class="hidden flex-grow-1">
+
   <nav class="navbar navbar-expand-lg navbar-custom mb-4">
     <div class="container-fluid">
-      <a class="navbar-brand d-flex align-items-center" href="#">
-        <img src="./diredawa-university.png" alt="DDU Logo" height="40" style="margin-right:10px;">Student Portal
-      </a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto" id="dashboardTabs">
-          <li class="nav-item"><span class="nav-link active" data-tab="homeTab">Home</span></li>
-          <li class="nav-item"><span class="nav-link" data-tab="viewResultTab">View Result</span></li>
-          <li class="nav-item"><span class="nav-link" data-tab="aboutTab">About</span></li>
-          <li class="nav-item"><span class="nav-link" data-tab="contactTab">Contact</span></li>
-          <li class="nav-item"><button class="nav-link btn-gradient text-white ms-2" id="logoutBtn">Logout</button></li>
-        </ul>
-      </div>
-    </div>
+      <span class="navbar-brand text-white">Student Portal</span>
+
+```
+  <ul class="navbar-nav ms-auto" id="tabs">
+    <li class="nav-item"><span class="nav-link active" data-tab="homeTab">Home</span></li>
+    <li class="nav-item"><span class="nav-link" data-tab="resultTab">View Result</span></li>
+    <li class="nav-item"><span class="nav-link" data-tab="aboutTab">About</span></li>
+    <li class="nav-item"><span class="nav-link" data-tab="contactTab">Contact</span></li>
+    <li class="nav-item"><button class="btn btn-light btn-sm ms-2" onclick="logout()">Logout</button></li>
+  </ul>
+</div>
+```
+
   </nav>
+
   <div class="container">
-    <h4 id="welcomeMsg" class="mb-4"></h4>
-    <div class="tab-content">
-      <div class="tab-pane fade show active" id="homeTab">Welcome to the Student Result Portal.</div>
-      <div class="tab-pane fade" id="viewResultTab">
-        <div class="table-responsive">
-          <table class="table table-bordered table-striped table-sm" id="resultTable"><thead></thead><tbody></tbody></table>
-        </div>
-      </div>
-      <div class="tab-pane fade" id="aboutTab">This is the Student Result Portal for multiple courses.</div>
-      <div class="tab-pane fade" id="contactTab">Contact: berihun.chalachew@ddu.edu.et</div>
-    </div>
+
+```
+<h5 id="welcomeMsg"></h5>
+
+<!-- TABS -->
+<div id="homeTab" class="tab-pane">Welcome to the Student Result Portal.</div>
+
+<div id="resultTab" class="tab-pane hidden">
+  <div class="table-responsive">
+    <table class="table table-bordered" id="resultTable">
+      <thead></thead>
+      <tbody></tbody>
+    </table>
   </div>
 </div>
 
-<div class="footer">&copy; 2026 Dire Dawa University - Student Result PWA</div>
+<div id="aboutTab" class="tab-pane hidden">
+  This system allows students to view results securely.
+</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<div id="contactTab" class="tab-pane hidden">
+  Contact: berihun.chalachew@ddu.edu.et
+</div>
+```
+
+  </div>
+</div>
+
+<div class="footer">© 2026 Student Result System</div>
+
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxTmpmrEfLRb8insGshrYKYfY6u6zkUSCHUOSjtYBh2vWFxVrsJTl5QKwSSBphniD4A/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby5o8P1ZrXkZtBnYmU-qsNekU6hTIZ1blVy3sYwW-__uJ1BSJVryVIwqeN4vZLo8wSk/exec";
 
-// Utility functions
-function show(element){ element.classList.remove('hidden'); }
-function hide(element){ element.classList.add('hidden'); }
-
-// Loader
-document.addEventListener('DOMContentLoaded', async()=>{
+// INIT
+document.addEventListener('DOMContentLoaded', async ()=>{
   const student = JSON.parse(sessionStorage.getItem('student'));
+
   if(student){
     showDashboard(student);
   }else{
-    try{ await populateSheets(); }catch(e){ alert('Failed to load sheets'); }
-    show(document.getElementById('loginPage'));
+    await loadSheets();
+    showLogin();
   }
+
   document.body.style.visibility='visible';
-  hide(document.getElementById('loader'));
+  document.getElementById('loader').style.display='none';
 });
 
-// Populate sheets
-async function populateSheets(){
-  const select = document.getElementById('sheet');
-  const res = await fetch(WEB_APP_URL,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({getSheets:true})
-  });
-  const data = await res.json();
-  select.innerHTML='<option value="">-- Select --</option>';
-  if(data.sheets) data.sheets.forEach(s=>{
-    const opt=document.createElement('option');
-    opt.value=s;
-    opt.textContent=s;
-    select.appendChild(opt);
-  });
+// LOAD SHEETS (FIXED)
+async function loadSheets(){
+  try{
+    const res = await fetch(WEB_APP_URL,{
+      method:'POST',
+      body: JSON.stringify({getSheets:true})
+    });
+
+    const data = await res.json();
+
+    const select = document.getElementById('sheet');
+    select.innerHTML='<option value="">-- Select --</option>';
+
+    data.sheets.forEach(s=>{
+      const opt=document.createElement('option');
+      opt.value=s;
+      opt.textContent=s;
+      select.appendChild(opt);
+    });
+
+  }catch(e){
+    alert("Failed to load sheets");
+    console.error(e);
+  }
 }
 
 // LOGIN
-document.getElementById('loginBtn').addEventListener('click', async()=>{
-  const id=document.getElementById('studentId').value.trim();
-  const password=document.getElementById('password').value.trim();
-  const sheet=document.getElementById('sheet').value;
-  const msg=document.getElementById('loginMsg'); msg.textContent='';
-  if(!id||!password||!sheet){ msg.textContent='All fields required'; return; }
-  try{
-    const res=await fetch(WEB_APP_URL,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({id,password,sheet})
-    });
-    const data = await res.json();
-    if(data.error){ msg.textContent=data.error; return; }
-    sessionStorage.setItem('student',JSON.stringify(data.student));
-    if(data.firstLogin){
-      hide(document.getElementById('loginPage'));
-      show(document.getElementById('changePasswordPage'));
-    }else showDashboard(data.student);
-  }catch(e){ msg.textContent='Network error'; console.error(e);}
-});
+async function login(){
+  const id = studentId.value.trim();
+  const password = document.getElementById('password').value.trim();
+  const sheet = document.getElementById('sheet').value;
 
-// CHANGE PASSWORD
-document.getElementById('updatePasswordBtn').addEventListener('click', async()=>{
-  const newPassword=document.getElementById('newPassword').value.trim();
-  const confirmPassword=document.getElementById('confirmPassword').value.trim();
-  const msg=document.getElementById('passwordMsg'); msg.textContent='';
-  if(!newPassword||!confirmPassword){ msg.textContent='All fields required'; return;}
-  if(newPassword!==confirmPassword){ msg.textContent='Passwords do not match'; return;}
-  const student=JSON.parse(sessionStorage.getItem('student'));
-  try{
-    const res=await fetch(WEB_APP_URL,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({action:'changePassword',id:student.StudentID,newPassword,sheet:document.getElementById('sheet').value})
-    });
-    const data = await res.json();
-    if(data.error){ msg.textContent=data.error; return;}
-    sessionStorage.setItem('student',JSON.stringify(data.student));
+  if(!id || !password || !sheet){
+    loginMsg.textContent="All fields required";
+    return;
+  }
+
+  const res = await fetch(WEB_APP_URL,{
+    method:'POST',
+    body: JSON.stringify({id,password,sheet})
+  });
+
+  const data = await res.json();
+
+  if(data.error){
+    loginMsg.textContent=data.error;
+    return;
+  }
+
+  sessionStorage.setItem('student', JSON.stringify(data.student));
+
+  if(data.firstLogin){
+    showChange();
+  }else{
     showDashboard(data.student);
-  }catch(e){ msg.textContent='Network error'; console.error(e);}
-});
-
-// DASHBOARD & LOGOUT
-function showDashboard(student){
-  hide(document.getElementById('loginPage'));
-  hide(document.getElementById('changePasswordPage'));
-  show(document.getElementById('dashboardPage'));
-  document.getElementById('welcomeMsg').textContent=`Welcome, ${student['First Name']||student.Name||student.StudentID}`;
-  loadResults(student); // Load results initially
+  }
 }
 
-// LOGOUT
-document.getElementById('logoutBtn').addEventListener('click',()=>{
-  sessionStorage.clear();
-  hide(document.getElementById('dashboardPage'));
-  show(document.getElementById('loginPage'));
-});
+// CHANGE PASSWORD
+async function changePassword(){
+  const newPassword = document.getElementById('newPassword').value;
+  const confirmPassword = document.getElementById('confirmPassword').value;
+  const student = JSON.parse(sessionStorage.getItem('student'));
 
-// TAB CLICK - auto-refresh View Result tab
-document.querySelectorAll('#dashboardTabs .nav-link[data-tab]').forEach(tab=>{
-  tab.addEventListener('click',()=>{
-    activateTab(tab.dataset.tab);
-    if(tab.dataset.tab==='viewResultTab'){
-      const student=JSON.parse(sessionStorage.getItem('student'));
-      if(student) loadResults(student); // Reload results whenever tab is clicked
-    }
+  if(newPassword !== confirmPassword){
+    passwordMsg.textContent="Passwords do not match";
+    return;
+  }
+
+  await fetch(WEB_APP_URL,{
+    method:'POST',
+    body: JSON.stringify({
+      action:'changePassword',
+      id: student.StudentID,
+      newPassword,
+      sheet: document.getElementById('sheet').value
+    })
   });
-});
 
-// Activate tab
-function activateTab(tabId){
-  document.querySelectorAll('.tab-pane').forEach(t=>t.classList.remove('show','active'));
-  document.getElementById(tabId).classList.add('show','active');
-  document.querySelectorAll('#dashboardTabs .nav-link').forEach(n=>n.classList.remove('active'));
-  document.querySelector(`#dashboardTabs [data-tab="${tabId}"]`).classList.add('active');
+  showDashboard(student);
+}
+
+// DASHBOARD
+function showDashboard(student){
+  loginPage.classList.add('hidden');
+  changePasswordPage.classList.add('hidden');
+  dashboardPage.classList.remove('hidden');
+
+  welcomeMsg.textContent = "Welcome, " + (student['First Name'] || student.StudentID);
+
+  loadResults(student);
 }
 
 // LOAD RESULTS
 function loadResults(student){
-  const table=document.getElementById('resultTable');
+  const table = document.getElementById('resultTable');
   table.querySelector('thead').innerHTML='';
   table.querySelector('tbody').innerHTML='';
-  const headers=Object.keys(student);
-  const trHead=document.createElement('tr'); 
-  headers.forEach(h=>{
-    const th=document.createElement('th'); th.textContent=h; trHead.appendChild(th);
-  });
-  table.querySelector('thead').appendChild(trHead);
 
-  const trBody=document.createElement('tr'); 
+  const headers = Object.keys(student);
+
+  let tr=document.createElement('tr');
   headers.forEach(h=>{
-    const td=document.createElement('td'); td.textContent=student[h]; trBody.appendChild(td);
+    let th=document.createElement('th');
+    th.textContent=h;
+    tr.appendChild(th);
   });
-  table.querySelector('tbody').appendChild(trBody);
+  table.querySelector('thead').appendChild(tr);
+
+  let tr2=document.createElement('tr');
+  headers.forEach(h=>{
+    let td=document.createElement('td');
+    td.textContent=student[h];
+    tr2.appendChild(td);
+  });
+  table.querySelector('tbody').appendChild(tr2);
+}
+
+// TAB SWITCH (FIXED + AUTO REFRESH)
+document.querySelectorAll('#tabs .nav-link').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.nav-link').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+
+    document.querySelectorAll('.tab-pane').forEach(p=>p.classList.add('hidden'));
+    document.getElementById(tab.dataset.tab).classList.remove('hidden');
+
+    if(tab.dataset.tab === 'resultTab'){
+      const student = JSON.parse(sessionStorage.getItem('student'));
+      loadResults(student); // AUTO REFRESH
+    }
+  });
+});
+
+// LOGOUT
+function logout(){
+  sessionStorage.clear();
+  location.reload();
+}
+
+// UI
+function showLogin(){ loginPage.classList.remove('hidden'); }
+function showChange(){
+  loginPage.classList.add('hidden');
+  changePasswordPage.classList.remove('hidden');
 }
 </script>
 
