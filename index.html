@@ -139,16 +139,6 @@
 <script>
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzYNl5lB9LeYAyqBFZS3MUC0HfIEaNQt89iwE3d2KuzbbI8RJ3sbEG77RoImzccWuro/exec";
 
-window.addEventListener('DOMContentLoaded', async () => {
-  try { await populateSheets(); }
-  catch(e){ alert("Failed to load sheets"); }
-  finally {
-    loginPage.classList.remove('hidden');
-    document.body.style.visibility = 'visible';
-    loader.style.display = 'none';
-  }
-});
-
 // LOAD SHEETS
 async function populateSheets() {
   const res = await fetch(WEB_APP_URL + "?getSheets=true");
@@ -170,7 +160,7 @@ async function login() {
   formData.append("password", password.value);
   formData.append("sheet", sheet.value);
 
-  const res = await fetch(WEB_APP_URL, { method:"POST", body:formData });
+  const res = await fetch(WEB_APP_URL,{method:"POST",body:formData});
   const data = await res.json();
 
   if(data.error){ loginMsg.textContent=data.error; return; }
@@ -179,29 +169,26 @@ async function login() {
   showDashboard(data.student);
 }
 
-// DASHBOARD
+// SHOW DASHBOARD (DYNAMIC HEADERS)
 function showDashboard(student){
   loginPage.classList.add('hidden');
   dashboardPage.classList.remove('hidden');
 
-  welcomeMsg.textContent="Welcome, "+(student.Name||student.ID);
-  loadResults(student);
-}
+  welcomeMsg.textContent="Welcome, "+(student["First Name"]||student["Student ID"]);
 
-// RESULTS
-function loadResults(student){
-  let keys=Object.keys(student);
-  resultTable.querySelector("thead").innerHTML=
+  const keys = Object.keys(student);
+
+  resultTable.querySelector("thead").innerHTML =
     "<tr>"+keys.map(k=>`<th>${k}</th>`).join("")+"</tr>";
 
-  resultTable.querySelector("tbody").innerHTML=
+  resultTable.querySelector("tbody").innerHTML =
     "<tr>"+keys.map(k=>`<td>${student[k]}</td>`).join("")+"</tr>";
 }
 
 // CHANGE PASSWORD
 async function changePassword(){
   const formData=new FormData();
-  formData.append("id", JSON.parse(sessionStorage.getItem("student")).ID);
+  formData.append("id", JSON.parse(sessionStorage.getItem("student"))["Student ID"]);
   formData.append("newPassword", newPassword.value);
   formData.append("sheet", sheet.value);
   formData.append("action","changePassword");
@@ -213,9 +200,6 @@ async function changePassword(){
 
   showDashboard(data.student);
 }
-
-// LOGOUT
-function logout(){ sessionStorage.clear(); location.reload(); }
 </script>
 
 </body>
