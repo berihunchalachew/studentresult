@@ -14,48 +14,27 @@ body{
   font-family:'Segoe UI',sans-serif;
   background:linear-gradient(135deg,#4b6cb7,#182848);
   min-height:100vh;
-  display:flex;
-  flex-direction:column;
 }
 
-/* Loader */
-#loader{
-  position:fixed;
-  width:100%;
-  height:100%;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:#fff;
-  z-index:9999;
-}
+/* HIDE SYSTEM */
+.hidden{ display:none !important; }
 
-/* Login Card */
-.card-box{
+/* LOGIN */
+.login-box{
   max-width:400px;
   margin:80px auto;
   padding:30px;
-  border-radius:15px;
   background:#fff;
+  border-radius:15px;
   box-shadow:0 10px 25px rgba(0,0,0,0.2);
 }
-
-/* Login Icon */
 .login-icon{
   width:90px;
   display:block;
-  margin:0 auto 20px;
+  margin:auto;
 }
 
-/* Buttons */
-.btn-main{
-  background:#4b6cb7;
-  color:#fff;
-  border:none;
-}
-.btn-main:hover{ background:#3a57a0; }
-
-/* Navbar */
+/* NAVBAR */
 .navbar-custom{
   background:#182848;
 }
@@ -68,16 +47,16 @@ body{
   border-radius:5px;
 }
 
-/* Tabs */
+/* TABS */
 .tab-pane{ display:none; }
 .tab-active{ display:block; }
 
-/* Footer */
+/* FOOTER */
 .footer{
-  margin-top:auto;
   text-align:center;
   padding:10px;
   background:#fff;
+  margin-top:30px;
 }
 </style>
 
@@ -85,22 +64,34 @@ body{
 
 <body>
 
-<div id="loader"><h4>Loading...</h4></div>
-
 <!-- LOGIN -->
 
-<div id="loginPage" class="card-box">
-  <img src="login.png" class="login-icon">
-  <h4 class="text-center mb-3">Student Login</h4>
+<div id="loginPage" class="login-box">
+  <img src="login.png" class="login-icon mb-3">
+  <h4 class="text-center">Student Login</h4>
 
-  <input id="studentId" class="form-control mb-2" placeholder="Student ID">
-  <input id="password" type="password" class="form-control mb-2" placeholder="Password">
+  <input id="studentId" class="form-control mt-3" placeholder="Student ID">
+  <input id="password" type="password" class="form-control mt-2" placeholder="Password">
 
-<select id="sheet" class="form-select mb-3"></select>
+<select id="sheet" class="form-select mt-2"></select>
 
-  <div id="loginMsg" class="text-danger mb-2"></div>
+  <div id="loginMsg" class="text-danger mt-2"></div>
 
-<button class="btn btn-main w-100" onclick="login()">Login</button>
+<button class="btn btn-primary w-100 mt-3" onclick="login()">Login</button>
+
+</div>
+
+<!-- CHANGE PASSWORD -->
+
+<div id="changePage" class="login-box hidden">
+  <h4 class="text-center">Change Password</h4>
+
+  <input id="newPassword" type="password" class="form-control mt-3" placeholder="New Password">
+  <input id="confirmPassword" type="password" class="form-control mt-2" placeholder="Confirm Password">
+
+  <div id="passMsg" class="text-danger mt-2"></div>
+
+<button class="btn btn-success w-100 mt-3" onclick="changePassword()">Update Password</button>
 
 </div>
 
@@ -108,11 +99,12 @@ body{
 
 <div id="dashboardPage" class="hidden">
 
+<!-- NAVBAR (TOP ALWAYS) -->
+
 <nav class="navbar navbar-expand-lg navbar-custom">
   <div class="container-fluid">
 
 ```
-<!-- DDU LOGO -->
 <div class="d-flex align-items-center text-white">
   <img src="ddu.png" height="40" style="margin-right:10px;">
   <strong>DDU Student Portal</strong>
@@ -132,40 +124,32 @@ body{
 
 <div class="container mt-4">
 
-  <h5 id="welcomeMsg" class="text-white"></h5>
+  <h5 id="welcomeMsg" class="text-white mb-3"></h5>
 
   <!-- HOME -->
 
   <div id="home" class="tab-pane tab-active text-white">
-    <div class="card p-3">
-      Welcome to Dire Dawa University Student Result System.
-    </div>
+    <div class="card p-3">Welcome to Student Result System</div>
   </div>
 
   <!-- RESULT -->
 
   <div id="result" class="tab-pane">
     <div class="card p-3">
-      <div class="table-responsive">
-        <table class="table table-bordered table-striped" id="resultTable"></table>
-      </div>
+      <table class="table table-bordered" id="resultTable"></table>
     </div>
   </div>
 
   <!-- ABOUT -->
 
   <div id="about" class="tab-pane">
-    <div class="card p-3">
-      This system allows students to securely view academic results.
-    </div>
+    <div class="card p-3">This portal allows students to view results securely.</div>
   </div>
 
   <!-- CONTACT -->
 
   <div id="contact" class="tab-pane">
-    <div class="card p-3">
-      Email: berihun.chalachew@ddu.edu.et
-    </div>
+    <div class="card p-3">Email: berihun.chalachew@ddu.edu.et</div>
   </div>
 
 </div>
@@ -174,7 +158,7 @@ body{
 <div class="footer">© 2026 Dire Dawa University</div>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxTmpmrEfLRb8insGshrYKYfY6u6zkUSCHUOSjtYBh2vWFxVrsJTl5QKwSSBphniD4A/exec";
+const WEB_APP_URL = "YOUR_SCRIPT_URL";
 
 // INIT
 document.addEventListener('DOMContentLoaded', async ()=>{
@@ -182,38 +166,28 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 
   if(student){
     showDashboard(student);
-  } else {
+  }else{
     await loadSheets();
   }
-
-  document.getElementById('loader').style.display='none';
 });
 
 // LOAD SHEETS
 async function loadSheets(){
-  try{
-    const res = await fetch(WEB_APP_URL,{
-      method:'POST',
-      body:JSON.stringify({getSheets:true})
-    });
+  const res = await fetch(WEB_APP_URL,{
+    method:'POST',
+    body:JSON.stringify({getSheets:true})
+  });
+  const data = await res.json();
 
-    const data = await res.json();
+  const select=document.getElementById('sheet');
+  select.innerHTML='<option value="">Select Course</option>';
 
-    const select=document.getElementById('sheet');
-    select.innerHTML='<option value="">-- Select Course --</option>';
-
-    if(data.sheets){
-      data.sheets.forEach(s=>{
-        let o=document.createElement('option');
-        o.value=s;
-        o.textContent=s;
-        select.appendChild(o);
-      });
-    }
-
-  }catch(e){
-    alert("Failed to load sheets");
-  }
+  data.sheets.forEach(s=>{
+    let o=document.createElement('option');
+    o.value=s;
+    o.textContent=s;
+    select.appendChild(o);
+  });
 }
 
 // LOGIN
@@ -222,7 +196,7 @@ async function login(){
   const password=document.getElementById('password').value.trim();
   const sheet=document.getElementById('sheet').value;
 
-  if(!id || !password || !sheet){
+  if(!id||!password||!sheet){
     loginMsg.textContent="All fields required";
     return;
   }
@@ -240,16 +214,47 @@ async function login(){
   }
 
   sessionStorage.setItem('student',JSON.stringify(data.student));
-  showDashboard(data.student);
+
+  if(data.firstLogin){
+    showChange();
+  }else{
+    showDashboard(data.student);
+  }
+}
+
+// CHANGE PASSWORD
+async function changePassword(){
+  const newP=newPassword.value;
+  const conf=confirmPassword.value;
+  const student=JSON.parse(sessionStorage.getItem('student'));
+
+  if(newP!==conf){
+    passMsg.textContent="Passwords do not match";
+    return;
+  }
+
+  await fetch(WEB_APP_URL,{
+    method:'POST',
+    body:JSON.stringify({
+      action:'changePassword',
+      id:student.StudentID,
+      newPassword:newP,
+      sheet:sheet.value
+    })
+  });
+
+  showDashboard(student);
 }
 
 // SHOW DASHBOARD
 function showDashboard(student){
-  document.getElementById('loginPage').style.display='none';
-  document.getElementById('dashboardPage').classList.remove('hidden');
+  loginPage.classList.add('hidden');
+  changePage.classList.add('hidden');
+  dashboardPage.classList.remove('hidden');
 
   welcomeMsg.textContent="Welcome, "+(student['First Name']||student.StudentID);
 
+  switchTab('home');
   loadResults(student);
 }
 
@@ -260,37 +265,49 @@ function loadResults(student){
 
   let tr=document.createElement('tr');
   Object.keys(student).forEach(k=>{
-    let th=document.createElement('th'); th.textContent=k; tr.appendChild(th);
+    let th=document.createElement('th');
+    th.textContent=k;
+    tr.appendChild(th);
   });
   table.appendChild(tr);
 
   let tr2=document.createElement('tr');
   Object.values(student).forEach(v=>{
-    let td=document.createElement('td'); td.textContent=v; tr2.appendChild(td);
+    let td=document.createElement('td');
+    td.textContent=v;
+    tr2.appendChild(td);
   });
   table.appendChild(tr2);
 }
 
-// TAB SWITCHING
+// TAB SWITCH
 document.querySelectorAll('#tabs .nav-link').forEach(tab=>{
-  tab.onclick=()=>{
-    document.querySelectorAll('.nav-link').forEach(t=>t.classList.remove('active'));
-    tab.classList.add('active');
-
-    document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('tab-active'));
-    document.getElementById(tab.dataset.tab).classList.add('tab-active');
-
-    if(tab.dataset.tab==='result'){
-      const student=JSON.parse(sessionStorage.getItem('student'));
-      loadResults(student);
-    }
-  };
+  tab.onclick=()=>switchTab(tab.dataset.tab);
 });
+
+function switchTab(tabName){
+  document.querySelectorAll('.nav-link').forEach(t=>t.classList.remove('active'));
+  document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('tab-active'));
+  document.getElementById(tabName).classList.add('tab-active');
+
+  if(tabName==='result'){
+    const student=JSON.parse(sessionStorage.getItem('student'));
+    loadResults(student);
+  }
+}
 
 // LOGOUT
 function logout(){
   sessionStorage.clear();
   location.reload();
+}
+
+// SHOW CHANGE PAGE
+function showChange(){
+  loginPage.classList.add('hidden');
+  changePage.classList.remove('hidden');
 }
 </script>
 
