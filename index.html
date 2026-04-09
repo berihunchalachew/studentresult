@@ -1,19 +1,18 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DDU Student Result Portal</title>
-
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
 <style>
 body{
   margin:0;
   font-family:'Segoe UI',sans-serif;
   background:linear-gradient(135deg,#4b6cb7,#182848);
   min-height:100vh;
+  display:flex;
+  flex-direction:column;
 }
 
 /* HIDE SYSTEM */
@@ -47,141 +46,111 @@ body{
   border-radius:5px;
 }
 
-/* TABS */
+/* DASHBOARD TABS */
 .tab-pane{ display:none; }
 .tab-active{ display:block; }
+.card{ border-radius:10px; }
+
+/* TABLE */
+.table-bordered th, .table-bordered td {
+  border: 1px solid #dee2e6 !important;
+}
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(255,255,255,0.1);
+}
 
 /* FOOTER */
 .footer{
   text-align:center;
   padding:10px;
   background:#fff;
-  margin-top:30px;
+  margin-top:auto;
 }
 </style>
-
 </head>
-
 <body>
 
 <!-- LOGIN -->
-
 <div id="loginPage" class="login-box">
   <img src="login.png" class="login-icon mb-3">
   <h4 class="text-center">Student Login</h4>
-
   <input id="studentId" class="form-control mt-3" placeholder="Student ID">
   <input id="password" type="password" class="form-control mt-2" placeholder="Password">
-
-<select id="sheet" class="form-select mt-2"></select>
-
+  <select id="sheet" class="form-select mt-2"></select>
   <div id="loginMsg" class="text-danger mt-2"></div>
-
-<button class="btn btn-primary w-100 mt-3" onclick="login()">Login</button>
-
+  <button class="btn btn-primary w-100 mt-3" onclick="login()">Login</button>
 </div>
 
 <!-- CHANGE PASSWORD -->
-
 <div id="changePage" class="login-box hidden">
   <h4 class="text-center">Change Password</h4>
-
   <input id="newPassword" type="password" class="form-control mt-3" placeholder="New Password">
   <input id="confirmPassword" type="password" class="form-control mt-2" placeholder="Confirm Password">
-
   <div id="passMsg" class="text-danger mt-2"></div>
-
-<button class="btn btn-success w-100 mt-3" onclick="changePassword()">Update Password</button>
-
+  <button class="btn btn-success w-100 mt-3" onclick="changePassword()">Update Password</button>
 </div>
 
 <!-- DASHBOARD -->
-
 <div id="dashboardPage" class="hidden">
-
-<!-- NAVBAR (TOP ALWAYS) -->
 
 <nav class="navbar navbar-expand-lg navbar-custom">
   <div class="container-fluid">
-
-```
-<div class="d-flex align-items-center text-white">
-  <img src="ddu.png" height="40" style="margin-right:10px;">
-  <strong>DDU Student Portal</strong>
-</div>
-
-<ul class="navbar-nav ms-auto" id="tabs">
-  <li class="nav-item"><span class="nav-link active" data-tab="home">Home</span></li>
-  <li class="nav-item"><span class="nav-link" data-tab="result">Result</span></li>
-  <li class="nav-item"><span class="nav-link" data-tab="about">About</span></li>
-  <li class="nav-item"><span class="nav-link" data-tab="contact">Contact</span></li>
-  <li class="nav-item"><button class="btn btn-light btn-sm ms-2" onclick="logout()">Logout</button></li>
-</ul>
-```
-
+    <div class="d-flex align-items-center text-white">
+      <img src="ddu.png" height="40" class="me-2">
+      <strong>DDU Student Portal</strong>
+    </div>
+    <ul class="navbar-nav ms-auto" id="tabs">
+      <li class="nav-item"><span class="nav-link active" data-tab="home">Home</span></li>
+      <li class="nav-item"><span class="nav-link" data-tab="result">Result</span></li>
+      <li class="nav-item"><span class="nav-link" data-tab="about">About</span></li>
+      <li class="nav-item"><span class="nav-link" data-tab="contact">Contact</span></li>
+      <li class="nav-item"><button class="btn btn-light btn-sm ms-2" onclick="logout()">Logout</button></li>
+    </ul>
   </div>
 </nav>
 
 <div class="container mt-4">
-
   <h5 id="welcomeMsg" class="text-white mb-3"></h5>
-
-  <!-- HOME -->
 
   <div id="home" class="tab-pane tab-active text-white">
     <div class="card p-3">Welcome to Student Result System</div>
   </div>
 
-  <!-- RESULT -->
-
   <div id="result" class="tab-pane">
-    <div class="card p-3">
-      <table class="table table-bordered" id="resultTable"></table>
+    <div class="card p-3 table-responsive">
+      <table class="table table-bordered table-striped text-white" id="resultTable"></table>
     </div>
   </div>
-
-  <!-- ABOUT -->
 
   <div id="about" class="tab-pane">
     <div class="card p-3">This portal allows students to view results securely.</div>
   </div>
 
-  <!-- CONTACT -->
-
   <div id="contact" class="tab-pane">
     <div class="card p-3">Email: berihun.chalachew@ddu.edu.et</div>
   </div>
-
 </div>
 </div>
 
 <div class="footer">© 2026 Dire Dawa University</div>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxTmpmrEfLRb8insGshrYKYfY6u6zkUSCHUOSjtYBh2vWFxVrsJTl5QKwSSBphniD4A/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/YOUR_WEB_APP_URL/exec";
 
-// INIT
 document.addEventListener('DOMContentLoaded', async ()=>{
   const student = JSON.parse(sessionStorage.getItem('student'));
-
-  if(student){
-    showDashboard(student);
-  }else{
-    await loadSheets();
-  }
+  if(student) showDashboard(student);
+  else await loadSheets();
 });
 
-// LOAD SHEETS
 async function loadSheets(){
   const res = await fetch(WEB_APP_URL,{
     method:'POST',
     body:JSON.stringify({getSheets:true})
   });
   const data = await res.json();
-
   const select=document.getElementById('sheet');
   select.innerHTML='<option value="">Select Course</option>';
-
   data.sheets.forEach(s=>{
     let o=document.createElement('option');
     o.value=s;
@@ -190,48 +159,28 @@ async function loadSheets(){
   });
 }
 
-// LOGIN
 async function login(){
   const id=studentId.value.trim();
   const password=document.getElementById('password').value.trim();
   const sheet=document.getElementById('sheet').value;
-
-  if(!id||!password||!sheet){
-    loginMsg.textContent="All fields required";
-    return;
-  }
+  if(!id||!password||!sheet){ loginMsg.textContent="All fields required"; return; }
 
   const res=await fetch(WEB_APP_URL,{
     method:'POST',
     body:JSON.stringify({id,password,sheet})
   });
-
   const data=await res.json();
-
-  if(data.error){
-    loginMsg.textContent=data.error;
-    return;
-  }
+  if(data.error){ loginMsg.textContent=data.error; return; }
 
   sessionStorage.setItem('student',JSON.stringify(data.student));
-
-  if(data.firstLogin){
-    showChange();
-  }else{
-    showDashboard(data.student);
-  }
+  data.firstLogin? showChange() : showDashboard(data.student);
 }
 
-// CHANGE PASSWORD
 async function changePassword(){
   const newP=newPassword.value;
   const conf=confirmPassword.value;
   const student=JSON.parse(sessionStorage.getItem('student'));
-
-  if(newP!==conf){
-    passMsg.textContent="Passwords do not match";
-    return;
-  }
+  if(newP!==conf){ passMsg.textContent="Passwords do not match"; return; }
 
   await fetch(WEB_APP_URL,{
     method:'POST',
@@ -242,45 +191,33 @@ async function changePassword(){
       sheet:sheet.value
     })
   });
-
   showDashboard(student);
 }
 
-// SHOW DASHBOARD
 function showDashboard(student){
   loginPage.classList.add('hidden');
   changePage.classList.add('hidden');
   dashboardPage.classList.remove('hidden');
-
   welcomeMsg.textContent="Welcome, "+(student['First Name']||student.StudentID);
-
   switchTab('home');
   loadResults(student);
 }
 
-// LOAD RESULTS
 function loadResults(student){
   const table=document.getElementById('resultTable');
   table.innerHTML='';
-
   let tr=document.createElement('tr');
   Object.keys(student).forEach(k=>{
-    let th=document.createElement('th');
-    th.textContent=k;
-    tr.appendChild(th);
+    let th=document.createElement('th'); th.textContent=k; tr.appendChild(th);
   });
   table.appendChild(tr);
-
   let tr2=document.createElement('tr');
   Object.values(student).forEach(v=>{
-    let td=document.createElement('td');
-    td.textContent=v;
-    tr2.appendChild(td);
+    let td=document.createElement('td'); td.textContent=v; tr2.appendChild(td);
   });
   table.appendChild(tr2);
 }
 
-// TAB SWITCH
 document.querySelectorAll('#tabs .nav-link').forEach(tab=>{
   tab.onclick=()=>switchTab(tab.dataset.tab);
 });
@@ -288,28 +225,23 @@ document.querySelectorAll('#tabs .nav-link').forEach(tab=>{
 function switchTab(tabName){
   document.querySelectorAll('.nav-link').forEach(t=>t.classList.remove('active'));
   document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-
   document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('tab-active'));
   document.getElementById(tabName).classList.add('tab-active');
-
   if(tabName==='result'){
     const student=JSON.parse(sessionStorage.getItem('student'));
     loadResults(student);
   }
 }
 
-// LOGOUT
 function logout(){
   sessionStorage.clear();
   location.reload();
 }
 
-// SHOW CHANGE PAGE
 function showChange(){
   loginPage.classList.add('hidden');
   changePage.classList.remove('hidden');
 }
 </script>
-
 </body>
 </html>
