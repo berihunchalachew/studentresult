@@ -166,9 +166,19 @@ function showDashboard(student) {
   document.getElementById('dashboardPage').classList.remove('hidden');
   document.getElementById('welcomeMsg').textContent = `Welcome, ${student['First Name'] || student['Student ID'] || student.Name}`;
 
-  // Bootstrap tabs
-  document.querySelectorAll('#dashboardTabs a').forEach(tabEl => new bootstrap.Tab(tabEl));
-  refreshResults();
+  // Initialize Bootstrap tabs properly
+  const tabElList = document.querySelectorAll('#dashboardTabs a[data-bs-toggle="tab"]');
+  tabElList.forEach(tabEl => {
+    const tab = new bootstrap.Tab(tabEl);
+    tabEl.addEventListener('shown.bs.tab', (e) => {
+      if (e.target.getAttribute('href') === '#viewResultTab') {
+        refreshResults(); // Refresh table when View Result tab is activated
+      }
+    });
+  });
+
+  // Activate first tab (Home) by default
+  bootstrap.Tab.getOrCreateInstance(document.querySelector('#dashboardTabs a[href="#homeTab"]')).show();
 }
 
 // Refresh Result Table dynamically
