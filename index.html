@@ -245,40 +245,61 @@ function loadResults(student){
   const table = document.getElementById('resultTable');
   table.innerHTML = '';
 
-  if(!student){
+  if(!student || Object.keys(student).length === 0){
     table.innerHTML = `<tr><td>No data found</td></tr>`;
     return;
   }
 
-  // filter only real result fields (IMPORTANT FIX)
-  const keys = Object.keys(student).filter(k =>
-    k !== 'StudentID' &&
-    k !== 'Password' &&
-    k !== 'sheet'
+  // 🔥 Normalize field names (important)
+  const clean = key => key.toLowerCase().replace(/\s+/g,'');
+
+  // ❌ Fields to exclude
+  const exclude = ['password'];
+
+  // ✅ Get dynamic headers safely
+  const keys = Object.keys(student).filter(k => 
+    !exclude.includes(clean(k))
   );
 
   if(keys.length === 0){
-    table.innerHTML = `<tr><td>No result fields found</td></tr>`;
+    table.innerHTML = `<tr><td>No result data found</td></tr>`;
+    console.log("DEBUG student:", student);
     return;
   }
 
-  // HEADER
+  // ✅ CREATE HEADER
+  const thead = document.createElement('thead');
   const trHead = document.createElement('tr');
+
   keys.forEach(k=>{
     const th = document.createElement('th');
     th.textContent = k;
     trHead.appendChild(th);
   });
-  table.appendChild(trHead);
 
-  // DATA ROW
+  thead.appendChild(trHead);
+  table.appendChild(thead);
+
+  // ✅ CREATE BODY
+  const tbody = document.createElement('tbody');
   const tr = document.createElement('tr');
+
   keys.forEach(k=>{
     const td = document.createElement('td');
-    td.textContent = student[k] ?? '';
+
+    let value = student[k];
+
+    // 🔥 Handle empty / undefined
+    if(value === null || value === undefined || value === ""){
+      value = "-";
+    }
+
+    td.textContent = value;
     tr.appendChild(td);
   });
-  table.appendChild(tr);
+
+  tbody.appendChild(tr);
+  table.appendChild(tbody);
 }
 
 // TAB SWITCH
