@@ -205,25 +205,59 @@ async function login(){
 
 // CHANGE PASSWORD
 async function changePassword(){
-  const newP = newPassword.value;
-  const conf = confirmPassword.value;
+  const newP = document.getElementById('newPassword').value.trim();
+  const conf = document.getElementById('confirmPassword').value.trim();
+
   const student = JSON.parse(sessionStorage.getItem('student'));
-  if(newP!==conf){ passMsg.textContent="Passwords do not match"; return; }
+
+  // ❌ empty check
+  if(!newP || !conf){
+    document.getElementById('passMsg').textContent = "All fields required";
+    return;
+  }
+
+  // ❌ length validation
+  if(newP.length < 6){
+    document.getElementById('passMsg').textContent = "Password must be at least 6 characters";
+    return;
+  }
+
+  // ❌ match validation
+  if(newP !== conf){
+    document.getElementById('passMsg').textContent = "Passwords do not match";
+    return;
+  }
 
   try{
-    await fetch(WEB_APP_URL,{
+    const res = await fetch(WEB_APP_URL,{
       method:'POST',
+      headers:{
+        "Content-Type":"application/json"
+      },
       body: JSON.stringify({
         action:'changePassword',
-        id:student.StudentID,
-        newPassword:newP,
+        id: student.StudentID,
+        newPassword: newP,
         sheet: student.sheet
       })
     });
+
+    const data = await res.json();
+
+    if(data.error){
+      document.getElementById('passMsg').textContent = data.error;
+      return;
+    }
+
+    // ✅ SUCCESS
+    sessionStorage.setItem('student', JSON.stringify({...student}));
+
+    alert("Password updated successfully");
     showDashboard(student);
+
   } catch(e){
     console.error(e);
-    passMsg.textContent="Failed to update password";
+    document.getElementById('passMsg').textContent = "Failed to update password";
   }
 }
 
