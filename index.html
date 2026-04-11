@@ -203,51 +203,51 @@ async function login(){
   }
 }
 
-// CHANGE PASSWORD
 async function changePassword(){
   const newP = document.getElementById('newPassword').value.trim();
   const conf = document.getElementById('confirmPassword').value.trim();
 
-  const student = JSON.parse(sessionStorage.getItem('student'));
+  const student = JSON.parse(sessionStorage.getItem('student')); // ✅ ONLY ONCE
 
-  // ❌ empty check
+  if(!student){
+    document.getElementById('passMsg').textContent = "Session expired. Please login again.";
+    return;
+  }
+
+  // validations
   if(!newP || !conf){
     document.getElementById('passMsg').textContent = "All fields required";
     return;
   }
 
-  // ❌ length validation
   if(newP.length < 6){
     document.getElementById('passMsg').textContent = "Password must be at least 6 characters";
     return;
   }
 
-  // ❌ match validation
   if(newP !== conf){
     document.getElementById('passMsg').textContent = "Passwords do not match";
     return;
   }
-  
 
-const student = JSON.parse(sessionStorage.getItem('student'));
+  const id = student["Student ID"] || student["StudentID"];
 
-console.log("STUDENT:", student);
+  try{
+    console.log("SENDING:", {id, newP, sheet: student.sheet});
 
-if(!student){
-  document.getElementById('passMsg').textContent = "Session expired. Please login again.";
-  return;
-}
+    const res = await fetch(WEB_APP_URL,{
+      method:'POST',
+      body: JSON.stringify({
+        action:'changePassword',
+        id: id,
+        newPassword: newP,
+        sheet: student.sheet
+      })
+    });
 
-const res = await fetch(WEB_APP_URL,{
-  method:'POST',
-  body: JSON.stringify({
-    action:'changePassword',
-    id: student["Student ID"] || student["StudentID"],
-    newPassword: newP,
-    sheet: student.sheet
-  })
-});
     const data = await res.json();
+
+    console.log("RESPONSE:", data);
 
     if(data.error){
       document.getElementById('passMsg').textContent = data.error;
@@ -255,17 +255,16 @@ const res = await fetch(WEB_APP_URL,{
     }
 
     // ✅ SUCCESS
-    sessionStorage.setItem('student', JSON.stringify({...student}));
+    sessionStorage.setItem('student', JSON.stringify(student));
 
     alert("Password updated successfully");
     showDashboard(student);
 
-  } catch(e){
+  }catch(e){
     console.error(e);
     document.getElementById('passMsg').textContent = "Failed to update password";
   }
 }
-
 // SHOW DASHBOARD
 function showDashboard(student){
   loginPage.classList.add('hidden');
