@@ -152,11 +152,15 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     return;
   }
 
-  if(student){
-    showDashboard(student);
+if(student){
+  if(student.firstLogin){
+    showChange();
   }else{
-    await loadSheets();
+    showDashboard(student);
   }
+}else{
+  await loadSheets();
+}
 });
 
 // LOAD SHEETS
@@ -292,6 +296,15 @@ function showDashboard(student){
   welcomeMsg.textContent = `Welcome, ${fname} ${father}`;
 
   switchTab('home');
+
+  // 🔥 AUTO LOAD LATEST DATA
+  fetchStudent(student["Student ID"] || student["StudentID"], student.sheet)
+    .then(data => {
+      if(data && data.student){
+        sessionStorage.setItem('student', JSON.stringify(data.student));
+      }
+    })
+    .catch(err => console.error(err));
 }
 
 // LOAD RESULT TABLE FOR SINGLE STUDENT
@@ -368,21 +381,32 @@ function switchTab(tabName){
   document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('tab-active'));
   document.getElementById(tabName).classList.add('tab-active');
 
-if(tabName==='result'){
+if(tabName === 'result'){
+
   const local = JSON.parse(sessionStorage.getItem('student'));
 
-  // 🔥 ALWAYS REFRESH FROM SERVER
-  fetchStudent(local["Student ID"] || local["StudentID"], local.sheet)
+  // 🔥 IMPORTANT SAFETY CHECK
+  if(!local){
+    console.error("No student in sessionStorage");
+    return;
+  }
+
+  const id = local["Student ID"] || local["StudentID"];
+
+  fetchStudent(id, local.sheet)
     .then(data => {
-      if(data.error){
-        console.error(data.error);
+
+      if(!data || data.error){
+        console.error(data?.error || "No data");
         return;
       }
 
+      // 🔥 FIX: backend returns {student}
       sessionStorage.setItem('student', JSON.stringify(data.student));
+
       loadResults(data.student);
     })
-    .catch(err => console.error(err));
+    .catch(err => console.error("FETCH ERROR:", err));
 }
 }
 
@@ -407,7 +431,8 @@ function showChange(){
     })
   });
 
-  return await res.json();
+const data = await res.json();
+return data;
 }
 </script>
 
