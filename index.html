@@ -144,12 +144,16 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxMGwpHV8pLOZWxzmHR
 // INIT
 document.addEventListener('DOMContentLoaded', async ()=>{
   const student = JSON.parse(sessionStorage.getItem('student'));
-  if(student){
-    showDashboard(student);
+
+if(student){
+  if(student.firstLogin){
+    showChange();   // 🔥 FORCE PASSWORD CHANGE
   }else{
-    await loadSheets();
+    showDashboard(student);
   }
-});
+}else{
+  await loadSheets();
+}
 
 // LOAD SHEETS
 async function loadSheets(){
@@ -189,8 +193,11 @@ async function login(){
     });
     const data = await res.json();
     if(data.error){ loginMsg.textContent=data.error; return; }
-
-    sessionStorage.setItem('student', JSON.stringify({...data.student, sheet}));
+    sessionStorage.setItem('student', JSON.stringify({
+  ...data.student,
+  sheet,
+  firstLogin: data.firstLogin
+}));
 
     if(data.firstLogin){
       showChange();
