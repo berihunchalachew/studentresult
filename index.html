@@ -368,10 +368,22 @@ function switchTab(tabName){
   document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('tab-active'));
   document.getElementById(tabName).classList.add('tab-active');
 
-  if(tabName==='result'){
-    const student = JSON.parse(sessionStorage.getItem('student'));
-    loadResults(student);
-  }
+if(tabName==='result'){
+  const local = JSON.parse(sessionStorage.getItem('student'));
+
+  // 🔥 ALWAYS REFRESH FROM SERVER
+  fetchStudent(local["Student ID"] || local["StudentID"], local.sheet)
+    .then(data => {
+      if(data.error){
+        console.error(data.error);
+        return;
+      }
+
+      sessionStorage.setItem('student', JSON.stringify(data.student));
+      loadResults(data.student);
+    })
+    .catch(err => console.error(err));
+}
 }
 
 // LOGOUT
@@ -384,6 +396,18 @@ function logout(){
 function showChange(){
   loginPage.classList.add('hidden');
   changePage.classList.remove('hidden');
+}
+  async function fetchStudent(id, sheet){
+  const res = await fetch(WEB_APP_URL,{
+    method:'POST',
+    body: JSON.stringify({
+      action:'getStudent',
+      id,
+      sheet
+    })
+  });
+
+  return await res.json();
 }
 </script>
 
