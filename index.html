@@ -143,17 +143,21 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxMGwpHV8pLOZWxzmHR
 
 // INIT
 document.addEventListener('DOMContentLoaded', async ()=>{
+
+  const forceChange = sessionStorage.getItem('forceChangePassword');
   const student = JSON.parse(sessionStorage.getItem('student'));
 
-if(student){
-  if(student.firstLogin){
-    showChange();   // 🔥 FORCE PASSWORD CHANGE
-  }else{
-    showDashboard(student);
+  if(forceChange === "true" && student){
+    showChange();   // 🔥 ALWAYS GO TO CHANGE PAGE
+    return;
   }
-}else{
-  await loadSheets();
-}
+
+  if(student){
+    showDashboard(student);
+  }else{
+    await loadSheets();
+  }
+});
 
 // LOAD SHEETS
 async function loadSheets(){
@@ -199,11 +203,13 @@ async function login(){
   firstLogin: data.firstLogin
 }));
 
-    if(data.firstLogin){
-      showChange();
-    } else {
-      showDashboard({...data.student, sheet});
-    }
+  if(data.firstLogin){
+  sessionStorage.setItem('forceChangePassword', "true"); // 🔥 ADD THIS
+  showChange();
+} else {
+  sessionStorage.removeItem('forceChangePassword');
+  showDashboard({...data.student, sheet});
+}
   } catch(e){
     console.error(e);
     loginMsg.textContent="Login failed";
@@ -262,7 +268,10 @@ async function changePassword(){
     }
 
     // ✅ SUCCESS
-    sessionStorage.setItem('student', JSON.stringify(student));
+   sessionStorage.removeItem('forceChangePassword'); // 🔥 IMPORTANT
+student.firstLogin = false;
+
+sessionStorage.setItem('student', JSON.stringify(student));
 
     alert("Password updated successfully");
     showDashboard(student);
