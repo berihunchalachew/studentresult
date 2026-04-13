@@ -350,7 +350,7 @@ function loadResults(student){
   const clean = key => key.toLowerCase().replace(/\s+/g,'');
 
   // ❌ Fields to exclude
-  const exclude = ['password'];
+const exclude = ['password', 'sheet', 'firstlogin'];
 
   // ✅ Get dynamic headers safely
   const keys = Object.keys(student).filter(k => 
