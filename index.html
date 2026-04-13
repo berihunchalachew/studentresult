@@ -16,8 +16,11 @@ body{
   display:flex;
   flex-direction:column;
 }
+
+/* HIDE ELEMENTS */
 .hidden{ display:none !important; }
 
+/* LOGIN BOX */
 .login-box{
   max-width:400px;
   margin:80px auto;
@@ -26,14 +29,40 @@ body{
   border-radius:15px;
   box-shadow:0 10px 25px rgba(0,0,0,0.2);
 }
+.login-icon{
+  width:90px;
+  display:block;
+  margin:auto;
+}
 
-.navbar-custom{ background:#182848; }
-.navbar-custom .nav-link{ color:#fff !important; cursor:pointer; }
-.navbar-custom .nav-link.active{ background:#4b6cb7; border-radius:5px; }
+/* NAVBAR */
+.navbar-custom{
+  background:#182848;
+}
+.navbar-custom .nav-link{
+  color:#fff !important;
+  cursor:pointer;
+}
+.navbar-custom .nav-link.active{
+  background:#4b6cb7;
+  border-radius:5px;
+}
 
+/* DASHBOARD TABS */
 .tab-pane{ display:none; }
 .tab-active{ display:block; }
+.card{ border-radius:10px; }
 
+/* TABLE */
+.table-bordered th, .table-bordered td {
+  border: 1px solid #dee2e6 !important;
+}
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(255,255,255,0.1);
+}
+.table-responsive { overflow-x:auto; }
+
+/* FOOTER */
 .footer{
   text-align:center;
   padding:10px;
@@ -47,6 +76,7 @@ body{
 
 <!-- LOGIN -->
 <div id="loginPage" class="login-box">
+  <img src="login.png" class="login-icon mb-3">
   <h4 class="text-center">Student Login</h4>
   <input id="studentId" class="form-control mt-3" placeholder="Student ID">
   <input id="password" type="password" class="form-control mt-2" placeholder="Password">
@@ -58,8 +88,7 @@ body{
 <!-- CHANGE PASSWORD -->
 <div id="changePage" class="login-box hidden">
   <h4 class="text-center">Change Password</h4>
-  <input id="currentPassword" type="password" class="form-control mt-2" placeholder="Current Password">
-  <input id="newPassword" type="password" class="form-control mt-2" placeholder="New Password">
+  <input id="newPassword" type="password" class="form-control mt-3" placeholder="New Password">
   <input id="confirmPassword" type="password" class="form-control mt-2" placeholder="Confirm Password">
   <div id="passMsg" class="text-danger mt-2"></div>
   <button class="btn btn-success w-100 mt-3" onclick="changePassword()">Update Password</button>
@@ -70,11 +99,15 @@ body{
 
 <nav class="navbar navbar-expand-lg navbar-custom">
   <div class="container-fluid">
-    <span class="text-white"><strong>DDU Student Portal</strong></span>
+    <div class="d-flex align-items-center text-white">
+      <img src="diredawa university.png" height="40" class="me-2">
+      <strong>DDU Student Portal</strong>
+    </div>
     <ul class="navbar-nav ms-auto" id="tabs">
       <li class="nav-item"><span class="nav-link active" data-tab="home">Home</span></li>
       <li class="nav-item"><span class="nav-link" data-tab="result">Result</span></li>
       <li class="nav-item"><span class="nav-link" data-tab="about">About</span></li>
+      <li class="nav-item"><span class="nav-link" data-tab="contact">Contact</span></li>
       <li class="nav-item"><button class="btn btn-light btn-sm ms-2" onclick="logout()">Logout</button></li>
     </ul>
   </div>
@@ -93,10 +126,13 @@ body{
     </div>
   </div>
 
-  <div id="about" class="tab-pane text-white">
+  <div id="about" class="tab-pane">
     <div class="card p-3">This portal allows students to view results securely.</div>
   </div>
 
+  <div id="contact" class="tab-pane">
+    <div class="card p-3">Email: berihun.chalachew@ddu.edu.et</div>
+  </div>
 </div>
 </div>
 
@@ -107,38 +143,45 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxt8PpQDQF_f7sBUIBt
 
 // INIT
 document.addEventListener('DOMContentLoaded', async ()=>{
-  const session = JSON.parse(sessionStorage.getItem('session'));
 
-  if(session){
-    await fetchStudent(session);
-  }else{
+  const forceChange = sessionStorage.getItem('forceChangePassword');
+  const student = JSON.parse(sessionStorage.getItem('student'));
+
+  if(forceChange === "true" && student){
+    showChange();   // 🔥 ALWAYS GO TO CHANGE PAGE
+    return;
+  }
+
+if(student){
+  await refreshStudentData();   // 🔥 fetch latest data
+  const updatedStudent = JSON.parse(sessionStorage.getItem('student'));
+  showDashboard(updatedStudent);
+}else{
     await loadSheets();
   }
 });
 
 // LOAD SHEETS
 async function loadSheets(){
-  try{
+  try {
     const res = await fetch(WEB_APP_URL,{
       method:'POST',
       body:JSON.stringify({getSheets:true})
     });
-
     const data = await res.json();
-    const select = document.getElementById('sheet');
-
-    select.innerHTML = '<option value="">Select Course</option>';
-
+    const select=document.getElementById('sheet');
+    select.innerHTML='<option value="">Select Course</option>';
     if(data.sheets){
       data.sheets.forEach(s=>{
-        const opt = document.createElement('option');
-        opt.value = s;
-        opt.textContent = s;
-        select.appendChild(opt);
+        let o=document.createElement('option');
+        o.value=s;
+        o.textContent=s;
+        select.appendChild(o);
       });
     }
-  }catch(e){
-    loginMsg.textContent = "Failed to load courses";
+  } catch(e){
+    console.error(e);
+    document.getElementById('loginMsg').textContent = "Failed to load sheets";
   }
 }
 
@@ -147,155 +190,239 @@ async function login(){
   const id = studentId.value.trim();
   const password = document.getElementById('password').value.trim();
   const sheet = document.getElementById('sheet').value;
+  if(!id || !password || !sheet){ loginMsg.textContent="All fields required"; return; }
 
-  if(!id || !password || !sheet){
-    loginMsg.textContent = "All fields required";
-    return;
-  }
-
-  const res = await fetch(WEB_APP_URL,{
-    method:'POST',
-    body:JSON.stringify({action:'login',id,password,sheet})
-  });
-
-  const data = await res.json();
-
-  if(data.error){
-    loginMsg.textContent = data.error;
-    return;
-  }
-
-  sessionStorage.setItem('session', JSON.stringify({id,sheet}));
+  try{
+    const res = await fetch(WEB_APP_URL,{
+      method:'POST',
+      body:JSON.stringify({id,password,sheet})
+    });
+    const data = await res.json();
+    if(data.error){ loginMsg.textContent=data.error; return; }
+    sessionStorage.setItem('student', JSON.stringify({
+  ...data.student,
+  sheet,
+  firstLogin: data.firstLogin
+}));
 
   if(data.firstLogin){
-    showChange();
-  }else{
-    showDashboard(data.student);
+  sessionStorage.setItem('forceChangePassword', "true"); // 🔥 ADD THIS
+  showChange();
+} else {
+  sessionStorage.removeItem('forceChangePassword');
+  showDashboard({...data.student, sheet});
+}
+  } catch(e){
+    console.error(e);
+    loginMsg.textContent="Login failed";
   }
 }
 
-// FETCH STUDENT (ALWAYS FRESH)
-async function fetchStudent(session){
-  const res = await fetch(WEB_APP_URL,{
-    method:'POST',
-    body:JSON.stringify({
-      action:'getStudent',
-      id:session.id,
-      sheet:session.sheet
-    })
-  });
+async function changePassword(){
+  const newP = document.getElementById('newPassword').value.trim();
+  const conf = document.getElementById('confirmPassword').value.trim();
 
-  const data = await res.json();
+  const student = JSON.parse(sessionStorage.getItem('student')); // ✅ ONLY ONCE
 
-  if(data.error){
-    logout();
+  if(!student){
+    document.getElementById('passMsg').textContent = "Session expired. Please login again.";
     return;
   }
 
-  showDashboard(data.student);
-}
+  // validations
+  if(!newP || !conf){
+    document.getElementById('passMsg').textContent = "All fields required";
+    return;
+  }
 
+  if(newP.length < 6){
+    document.getElementById('passMsg').textContent = "Password must be at least 6 characters";
+    return;
+  }
+
+  if(newP !== conf){
+    document.getElementById('passMsg').textContent = "Passwords do not match";
+    return;
+  }
+
+  const id = student["Student ID"] || student["StudentID"];
+
+  try{
+    console.log("SENDING:", {id, newP, sheet: student.sheet});
+
+    const res = await fetch(WEB_APP_URL,{
+      method:'POST',
+      body: JSON.stringify({
+        action:'changePassword',
+        id: id,
+        newPassword: newP,
+        sheet: student.sheet
+      })
+    });
+
+    const data = await res.json();
+
+    console.log("RESPONSE:", data);
+
+    if(data.error){
+      document.getElementById('passMsg').textContent = data.error;
+      return;
+    }
+
+    // ✅ SUCCESS
+   sessionStorage.removeItem('forceChangePassword'); // 🔥 IMPORTANT
+student.firstLogin = false;
+
+sessionStorage.setItem('student', JSON.stringify(student));
+
+    alert("Password updated successfully");
+    showDashboard(student);
+
+  }catch(e){
+    console.error(e);
+    document.getElementById('passMsg').textContent = "Failed to update password";
+  }
+}
 // SHOW DASHBOARD
 function showDashboard(student){
   loginPage.classList.add('hidden');
   changePage.classList.add('hidden');
   dashboardPage.classList.remove('hidden');
 
-  const name = student["First Name"] || student["Student ID"];
-  welcomeMsg.textContent = "Welcome, " + name;
+  const fname = student['First Name'] || student.StudentID;
+  const father = student['Father Name'] || '';
+  welcomeMsg.textContent = `Welcome, ${fname} ${father}`;
 
-  loadResults(student);
+  switchTab('home');
 }
 
-// LOAD RESULTS
+// LOAD RESULT TABLE FOR SINGLE STUDENT
 function loadResults(student){
   const table = document.getElementById('resultTable');
   table.innerHTML = '';
 
-  const keys = Object.keys(student).filter(k =>
-    k.toLowerCase().replace(/\s+/g,'') !== "password"
+  if(!student || Object.keys(student).length === 0){
+    table.innerHTML = `<tr><td>No data found</td></tr>`;
+    return;
+  }
+
+  // 🔥 Normalize field names (important)
+  const clean = key => key.toLowerCase().replace(/\s+/g,'');
+
+  // ❌ Fields to exclude
+  const exclude = ['password'];
+
+  // ✅ Get dynamic headers safely
+  const keys = Object.keys(student).filter(k => 
+    !exclude.includes(clean(k))
   );
 
+  if(keys.length === 0){
+    table.innerHTML = `<tr><td>No result data found</td></tr>`;
+    console.log("DEBUG student:", student);
+    return;
+  }
+
+  // ✅ CREATE HEADER
+  const thead = document.createElement('thead');
   const trHead = document.createElement('tr');
+
   keys.forEach(k=>{
     const th = document.createElement('th');
     th.textContent = k;
     trHead.appendChild(th);
   });
 
-  table.appendChild(trHead);
+  thead.appendChild(trHead);
+  table.appendChild(thead);
 
+  // ✅ CREATE BODY
+  const tbody = document.createElement('tbody');
   const tr = document.createElement('tr');
+
   keys.forEach(k=>{
     const td = document.createElement('td');
-    td.textContent = student[k] || "-";
+
+    let value = student[k];
+
+    // 🔥 Handle empty / undefined
+    if(value === null || value === undefined || value === ""){
+      value = "-";
+    }
+
+    td.textContent = value;
     tr.appendChild(td);
   });
 
-  table.appendChild(tr);
-}
-
-// CHANGE PASSWORD
-async function changePassword(){
-  const current = currentPassword.value;
-  const newP = newPassword.value;
-  const conf = confirmPassword.value;
-
-  const session = JSON.parse(sessionStorage.getItem('session'));
-
-  if(newP !== conf){
-    passMsg.textContent = "Passwords do not match";
-    return;
-  }
-
-  const res = await fetch(WEB_APP_URL,{
-    method:'POST',
-    body:JSON.stringify({
-      action:'changePassword',
-      id:session.id,
-      sheet:session.sheet,
-      currentPassword:current,
-      newPassword:newP
-    })
-  });
-
-  const data = await res.json();
-
-  if(data.error){
-    passMsg.textContent = data.error;
-    return;
-  }
-
-  alert("Password updated");
-  fetchStudent(session);
+  tbody.appendChild(tr);
+  table.appendChild(tbody);
 }
 
 // TAB SWITCH
 document.querySelectorAll('#tabs .nav-link').forEach(tab=>{
-  tab.onclick = ()=>{
-    document.querySelectorAll('.nav-link').forEach(t=>t.classList.remove('active'));
-    tab.classList.add('active');
-
-    document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('tab-active'));
-    document.getElementById(tab.dataset.tab).classList.add('tab-active');
-
-    if(tab.dataset.tab === "result"){
-      const session = JSON.parse(sessionStorage.getItem('session'));
-      fetchStudent(session);
-    }
-  };
+  tab.onclick = ()=>switchTab(tab.dataset.tab);
 });
 
-// SHOW CHANGE PAGE
-function showChange(){
-  loginPage.classList.add('hidden');
-  changePage.classList.remove('hidden');
+function switchTab(tabName){
+  document.querySelectorAll('.nav-link').forEach(t=>t.classList.remove('active'));
+  document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('tab-active'));
+  document.getElementById(tabName).classList.add('tab-active');
+
+if(tabName==='result'){
+  refreshStudentData().then(()=>{
+    const student = JSON.parse(sessionStorage.getItem('student'));
+    loadResults(student);
+  });
+}
 }
 
 // LOGOUT
 function logout(){
   sessionStorage.clear();
   location.reload();
+}
+
+// SHOW CHANGE PASSWORD PAGE
+function showChange(){
+  loginPage.classList.add('hidden');
+  changePage.classList.remove('hidden');
+}
+  
+  async function refreshStudentData(){
+  const student = JSON.parse(sessionStorage.getItem('student'));
+
+  if(!student) return;
+
+  try{
+    const res = await fetch(WEB_APP_URL,{
+      method:'POST',
+      body: JSON.stringify({
+        action:'getStudent',
+        id: student["Student ID"] || student["StudentID"],
+        sheet: student.sheet
+      })
+    });
+
+    const data = await res.json();
+
+    if(data.error){
+      console.log("Refresh error:", data.error);
+      return;
+    }
+
+    // ✅ update session with fresh data
+    const updated = {
+      ...data.student,
+      sheet: student.sheet
+    };
+
+    sessionStorage.setItem('student', JSON.stringify(updated));
+
+  }catch(e){
+    console.error("Refresh failed:", e);
+  }
 }
 </script>
 
