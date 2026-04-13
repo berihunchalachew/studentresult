@@ -152,15 +152,11 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     return;
   }
 
-if(student){
-  if(student.firstLogin){
-    showChange();
-  }else{
+  if(student){
     showDashboard(student);
+  }else{
+    await loadSheets();
   }
-}else{
-  await loadSheets();
-}
 });
 
 // LOAD SHEETS
@@ -296,15 +292,6 @@ function showDashboard(student){
   welcomeMsg.textContent = `Welcome, ${fname} ${father}`;
 
   switchTab('home');
-
-  // 🔥 AUTO LOAD LATEST DATA
-  fetchStudent(student["Student ID"] || student["StudentID"], student.sheet)
-    .then(data => {
-      if(data && data.student){
-        sessionStorage.setItem('student', JSON.stringify(data.student));
-      }
-    })
-    .catch(err => console.error(err));
 }
 
 // LOAD RESULT TABLE FOR SINGLE STUDENT
@@ -381,33 +368,10 @@ function switchTab(tabName){
   document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('tab-active'));
   document.getElementById(tabName).classList.add('tab-active');
 
-if(tabName === 'result'){
-
-  const local = JSON.parse(sessionStorage.getItem('student'));
-
-  // 🔥 IMPORTANT SAFETY CHECK
-  if(!local){
-    console.error("No student in sessionStorage");
-    return;
+  if(tabName==='result'){
+    const student = JSON.parse(sessionStorage.getItem('student'));
+    loadResults(student);
   }
-
-  const id = local["Student ID"] || local["StudentID"];
-
-  fetchStudent(id, local.sheet)
-    .then(data => {
-
-      if(!data || data.error){
-        console.error(data?.error || "No data");
-        return;
-      }
-
-      // 🔥 FIX: backend returns {student}
-      sessionStorage.setItem('student', JSON.stringify(data.student));
-
-      loadResults(data.student);
-    })
-    .catch(err => console.error("FETCH ERROR:", err));
-}
 }
 
 // LOGOUT
@@ -420,19 +384,6 @@ function logout(){
 function showChange(){
   loginPage.classList.add('hidden');
   changePage.classList.remove('hidden');
-}
-  async function fetchStudent(id, sheet){
-  const res = await fetch(WEB_APP_URL,{
-    method:'POST',
-    body: JSON.stringify({
-      action:'getStudent',
-      id,
-      sheet
-    })
-  });
-
-const data = await res.json();
-return data;
 }
 </script>
 
