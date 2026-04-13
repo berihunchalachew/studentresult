@@ -1,4 +1,4 @@
-const CACHE_NAME="student-app-v6";
+const CACHE_NAME="student-app-v7";
 const FILES_TO_CACHE=[
   "./","./index.html","./manifest.json",
   "./icon-192.png","./icon-512.png",
