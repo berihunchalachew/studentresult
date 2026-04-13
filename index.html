@@ -222,6 +222,8 @@ async function login(){
   })
 });
     const data = await res.json();
+        console.log("LOGIN RESPONSE:", data); // 🔥 debug
+
     if(data.error){ loginMsg.textContent=data.error; return; }
     sessionStorage.setItem('student', JSON.stringify({
   ...data.student,
@@ -249,7 +251,7 @@ if(data.firstLogin){
     console.error(e);
     loginMsg.textContent="Login failed";
   }
-  console.log("LOGIN RESPONSE:", data);
+
 }
 
 async function changePassword(){
