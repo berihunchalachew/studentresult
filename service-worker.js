@@ -1,9 +1,18 @@
 const CACHE_NAME="student-app-v7";
 const FILES_TO_CACHE=[
-  "./","./index.html","./manifest.json",
-  "./icon-192.png","./icon-512.png",
-  "./login.png","./diredawa university.png"
+  "./",
+  "./index.html",
+  "./icon-192.png",
+  "./icon-512.png",
+  "./login.png",
+  "./diredawa university.png"
 ];
+
+// inside fetch
+if (e.request.url.includes("mainfest.json")) {
+  e.respondWith(fetch(e.request));
+  return;
+}
 
 // Install
 self.addEventListener("install",e=>{
