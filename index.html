@@ -8,6 +8,9 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <style>
+  #loginPage, #changePage, #dashboardPage {
+  display: none;
+}
 body{
   margin:0;
   font-family:'Segoe UI',sans-serif;
@@ -146,21 +149,32 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 
   const forceChange = sessionStorage.getItem('forceChangePassword');
   const student = JSON.parse(sessionStorage.getItem('student'));
+  const savedTab = sessionStorage.getItem('activeTab') || 'home';
 
   if(forceChange === "true" && student){
-    showChange();   // 🔥 ALWAYS GO TO CHANGE PAGE
+    changePage.style.display = "block";
     return;
   }
 
-if(student){
-  await refreshStudentData();   // 🔥 fetch latest data
-  const updatedStudent = JSON.parse(sessionStorage.getItem('student'));
-  showDashboard(updatedStudent);
-}else{
+  if(student){
+    dashboardPage.style.display = "block";
+
+    // ✅ load data FIRST
+    await refreshStudentData();
+
+    const updatedStudent = JSON.parse(sessionStorage.getItem('student'));
+
+    // ✅ show dashboard
+    showDashboard(updatedStudent);
+
+    // ✅ restore tab
+    switchTab(savedTab);
+
+  }else{
+    loginPage.style.display = "block";
     await loadSheets();
   }
 });
-
 // LOAD SHEETS
 async function loadSheets(){
   try {
@@ -290,9 +304,9 @@ sessionStorage.setItem('student', JSON.stringify(student));
 }
 // SHOW DASHBOARD
 function showDashboard(student){
-  loginPage.classList.add('hidden');
-  changePage.classList.add('hidden');
-  dashboardPage.classList.remove('hidden');
+  loginPage.style.display = "none";
+  changePage.style.display = "none";
+  dashboardPage.style.display = "block";
 
   const fname = student['First Name'] || student.StudentID;
   const father = student['Father Name'] || '';
@@ -369,18 +383,18 @@ document.querySelectorAll('#tabs .nav-link').forEach(tab=>{
 });
 
 function switchTab(tabName){
+  sessionStorage.setItem('activeTab', tabName); // ✅ SAVE TAB
+
   document.querySelectorAll('.nav-link').forEach(t=>t.classList.remove('active'));
   document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
 
   document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('tab-active'));
   document.getElementById(tabName).classList.add('tab-active');
 
-if(tabName==='result'){
-  refreshStudentData().then(()=>{
+  if(tabName==='result'){
     const student = JSON.parse(sessionStorage.getItem('student'));
-    loadResults(student);
-  });
-}
+    loadResults(student); // ⚡ instant (no waiting)
+  }
 }
 
 // LOGOUT
