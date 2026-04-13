@@ -146,16 +146,21 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxt8PpQDQF_f7sBUIBt
 
 // INIT
 document.addEventListener('DOMContentLoaded', async ()=>{
+   // ✅ reset all
+  loginPage.style.display = "none";
+  changePage.style.display = "none";
+  dashboardPage.style.display = "none";
 
   const forceChange = sessionStorage.getItem('forceChangePassword');
   const student = JSON.parse(sessionStorage.getItem('student'));
   const savedTab = sessionStorage.getItem('activeTab') || 'home';
 
-  if(forceChange === "true" && student){
-    changePage.style.display = "block";
-    return;
-  }
-
+if(forceChange === "true" && student){
+  loginPage.style.display = "none";
+  dashboardPage.style.display = "none";
+  changePage.style.display = "block";
+  return;
+}
   if(student){
     dashboardPage.style.display = "block";
 
