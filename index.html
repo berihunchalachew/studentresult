@@ -193,10 +193,15 @@ async function login(){
   if(!id || !password || !sheet){ loginMsg.textContent="All fields required"; return; }
 
   try{
-    const res = await fetch(WEB_APP_URL,{
-      method:'POST',
-      body:JSON.stringify({id,password,sheet})
-    });
+   const res = await fetch(WEB_APP_URL,{
+  method:'POST',
+  body: JSON.stringify({
+    action: 'login',   // 🔥 THIS LINE FIXES IT
+    id,
+    password,
+    sheet
+  })
+});
     const data = await res.json();
     if(data.error){ loginMsg.textContent=data.error; return; }
     sessionStorage.setItem('student', JSON.stringify({
