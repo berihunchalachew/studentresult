@@ -2,7 +2,7 @@ const CACHE_NAME="student-app-v6";
 const FILES_TO_CACHE=[
   "./","./index.html","./manifest.json",
   "./icon-192.png","./icon-512.png",
-  "./login.png","./diredawa-university.png"
+  "./login.png","./diredawa university.png"
 ];
 
 // Install
