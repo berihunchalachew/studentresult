@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DDU Student Result Portal</title>
+<title>Student Result Portal</title>
   <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" type="image/png" href="icon-192.png">
   <link rel="manifest" href="mainfest.json">
@@ -142,14 +142,14 @@ body{
 </div>
 </div>
 
-<div class="footer">© 2026 Dire Dawa University</div>
+<div class="footer">© 2026 student result system.All rights reserved.</div>
 
 <script>
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwM9_M8X_AqMlfSDFslumMDl8Hcat5DIi4udfDKB0IJzRqpcP-p4ISYi90A-weixeex9Q/exec";
 
 // INIT
 document.addEventListener('DOMContentLoaded', async ()=>{
-   // ✅ reset all
+   //  reset all
   loginPage.style.display = "none";
   changePage.style.display = "none";
   dashboardPage.style.display = "none";
@@ -167,15 +167,15 @@ if(forceChange === "true" && student){
   if(student){
     dashboardPage.style.display = "block";
 
-    // ✅ load data FIRST
+    // load data FIRST
     await refreshStudentData();
 
     const updatedStudent = JSON.parse(sessionStorage.getItem('student'));
 
-    // ✅ show dashboard
+    //  show dashboard
     showDashboard(updatedStudent);
 
-    // ✅ restore tab
+    // restore tab
     switchTab(savedTab);
 
   }else{
@@ -218,15 +218,14 @@ async function login(){
    const res = await fetch(WEB_APP_URL,{
   method:'POST',
   body: JSON.stringify({
-    action: 'login',   // 🔥 THIS LINE FIXES IT
+    action: 'login',  
     id,
     password,
     sheet
   })
 });
     const data = await res.json();
-        console.log("LOGIN RESPONSE:", data); // 🔥 debug
-
+       
     if(data.error){ loginMsg.textContent=data.error; return; }
     sessionStorage.setItem('student', JSON.stringify({
   ...data.student,
@@ -246,7 +245,7 @@ if(data.firstLogin){
 
   showDashboard(studentData);
 
-  // ✅ restore last tab
+  //  restore last tab
   const savedTab = sessionStorage.getItem('activeTab') || 'home';
   switchTab(savedTab);
 }
@@ -261,7 +260,7 @@ async function changePassword(){
   const newP = document.getElementById('newPassword').value.trim();
   const conf = document.getElementById('confirmPassword').value.trim();
 
-  const student = JSON.parse(sessionStorage.getItem('student')); // ✅ ONLY ONCE
+  const student = JSON.parse(sessionStorage.getItem('student')); // ONLY ONCE
 
   if(!student){
     document.getElementById('passMsg').textContent = "Session expired. Please login again.";
@@ -308,7 +307,7 @@ async function changePassword(){
       return;
     }
 
-    // ✅ SUCCESS
+    // SUCCESS
    sessionStorage.removeItem('forceChangePassword'); // 🔥 IMPORTANT
 student.firstLogin = false;
 
@@ -316,10 +315,10 @@ sessionStorage.setItem('student', JSON.stringify(student));
 
     alert("Password updated successfully");
 
-// ✅ go to dashboard correctly
+// go to dashboard correctly
 showDashboard(student);
 
-// ✅ restore tab
+//  restore tab
 const savedTab = sessionStorage.getItem('activeTab') || 'home';
 switchTab(savedTab);
 
@@ -349,13 +348,13 @@ function loadResults(student){
     return;
   }
 
-  // 🔥 Normalize field names (important)
+  //  Normalize field names 
   const clean = key => key.toLowerCase().replace(/\s+/g,'');
 
-  // ❌ Fields to exclude
+  // Fields to exclude
 const exclude = ['password', 'sheet', 'firstlogin'];
 
-  // ✅ Get dynamic headers safely
+  // Get dynamic headers 
   const keys = Object.keys(student).filter(k => 
     !exclude.includes(clean(k))
   );
@@ -366,7 +365,7 @@ const exclude = ['password', 'sheet', 'firstlogin'];
     return;
   }
 
-  // ✅ CREATE HEADER
+  //  CREATE HEADER
   const thead = document.createElement('thead');
   const trHead = document.createElement('tr');
 
@@ -379,7 +378,7 @@ const exclude = ['password', 'sheet', 'firstlogin'];
   thead.appendChild(trHead);
   table.appendChild(thead);
 
-  // ✅ CREATE BODY
+  //  CREATE BODY
   const tbody = document.createElement('tbody');
   const tr = document.createElement('tr');
 
@@ -388,7 +387,7 @@ const exclude = ['password', 'sheet', 'firstlogin'];
 
     let value = student[k];
 
-    // 🔥 Handle empty / undefined
+    // Handle empty / undefined
     if(value === null || value === undefined || value === ""){
       value = "-";
     }
@@ -407,7 +406,7 @@ document.querySelectorAll('#tabs .nav-link').forEach(tab=>{
 });
 
 function switchTab(tabName){
-  sessionStorage.setItem('activeTab', tabName); // ✅ SAVE TAB
+  sessionStorage.setItem('activeTab', tabName); //  SAVE TAB
 
   document.querySelectorAll('.nav-link').forEach(t=>t.classList.remove('active'));
   document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
@@ -417,7 +416,7 @@ function switchTab(tabName){
 
   if(tabName==='result'){
     const student = JSON.parse(sessionStorage.getItem('student'));
-    loadResults(student); // ⚡ instant (no waiting)
+    loadResults(student); 
   }
 }
 
@@ -456,7 +455,7 @@ function showChange(){
       return;
     }
 
-    // ✅ update session with fresh data
+    // update session with fresh data
     const updated = {
       ...data.student,
       sheet: student.sheet
